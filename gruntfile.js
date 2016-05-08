@@ -7,6 +7,7 @@ module.exports = function(grunt) {
 			build: {
 				files: {
 					'c/index.js':                 'index.js',
+					'c/js/Controls.js':           'js/Controls.js',
 					'c/lib/AnimatedProperty.js':  'lib/AnimatedProperty.js',
 					'c/lib/ContainerNode.js':     'lib/ContainerNode.js',
 					'c/lib/Easing.js':            'lib/Easing.js',
@@ -26,7 +27,7 @@ module.exports = function(grunt) {
 		},
 		watch: {
 			scripts: {
-				files: ['./*.js', 'lib/**/*.js'],
+				files: ['./*.js', 'js/**/*.js', 'lib/**/*.js'],
 				tasks: ['babel']
 			}
 		}
