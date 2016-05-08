@@ -151,6 +151,7 @@ class Controls {
 				let s = (vpos % 3600).toFixed(2);
 				popupTime.textContent = `${(h ? `${h}:` : '')}${m ? `${m}:` : ''}${s}`;
 				ppvp.draw(undefined, vpos);
+				this.viewport.scene.parent = this.viewport;
 			} else {
 				if (popupIsOpen) {
 					popupIsOpen = false;

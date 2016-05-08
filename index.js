@@ -20,7 +20,10 @@ import Easing from 'lib/Easing';
 import Scene from 'lib/Scene';
 import Viewport from 'lib/Viewport';
 import TransformableNode from 'lib/TransformableNode';
+import NumericProperty from 'lib/NumericProperty';
 import NumericKey from 'lib/NumericKey';
+import Transform from 'lib/Transform';
+import ContainerNode from 'lib/ContainerNode';
 
 let app        = document.querySelector('#app');
 let mainCanvas = document.querySelector('#main-canvas');
@@ -70,80 +73,202 @@ xipc.on('fullscreen-notifier', function(e, state) {
 });
 
 {
-	let TitleNode = class TitleNode extends TransformableNode {
-		constructor(text, fontSize, italic) {
+	let LineNode = class LineNode extends TransformableNode {
+		constructor() {
 			super();
-			this.text = text;
-			this.fontSize = fontSize;
-			this.italic = italic;
+			this.x1 = new NumericProperty();
+			this.y1 = new NumericProperty();
+			this.x2 = new NumericProperty();
+			this.y2 = new NumericProperty();
 		}
 		draw(ctx, t) {
 			super.draw(ctx, t);
-			ctx.textAlign = 'center';
-			ctx.textBaseline = 'middle';
-			ctx.font = `${this.italic ? `italic` :
-				``} 500 ${this.fontSize}px Avenir Next, Montserrat, Lato, sans-serif`;
-			ctx.fillStyle = '#fff';
-			ctx.fillText(this.text, 0, 0);
+			ctx.strokeStyle = '#fff';
+			ctx.lineWidth = 3;
+			ctx.lineCap = 'round';
+			ctx.beginPath();
+			ctx.moveTo(this.x1.atTimeSafe(t), this.y1.atTimeSafe(t));
+			ctx.lineTo(this.x2.atTimeSafe(t), this.y2.atTimeSafe(t));
+			ctx.stroke();
 		}
 	};
+	let ArcNode = class ArcNode extends TransformableNode {
+		constructor() {
+			super();
+			this.x = new NumericProperty();
+			this.y = new NumericProperty();
+			this.rad = new NumericProperty();
+			this.start = new NumericProperty();
+			this.end = new NumericProperty();
+		}
+		draw(ctx, t) {
+			super.draw(ctx, t);
+			ctx.strokeStyle = '#fff';
+			ctx.lineWidth = 3;
+			ctx.lineCap = 'round';
+			ctx.beginPath();
+			ctx.arc(this.x.atTimeSafe(t), this.y.atTimeSafe(t), this.rad.atTimeSafe(t),
+				this.start.atTimeSafe(t), this.end.atTimeSafe(t));
+			ctx.stroke();
+		}
+	};
+	let DropZone = class DropZone extends TransformableNode {
+		constructor() {
+			super();
+		}
+		draw(ctx, t) {
+			super.draw(ctx, t);
+			ctx.fillStyle = '#fff';
+			ctx.strokeStyle = '#fff';
+			ctx.lineCap = 'butt';
+			ctx.lineJoin = 'round';
+			ctx.beginPath();
+			let r = 5;
+			ctx.moveTo(-250, -140 + 2 * r);
+			ctx.arcTo(-250, -140, -250 + r, -140, 2 * r);
+			ctx.arcTo(250, -140, 250, -140 + r, 2 * r);
+			ctx.arcTo(250, 140, 250 - r, 140, 2 * r);
+			ctx.arcTo(-250, 140, -250, 140 - r, 2 * r);
+			ctx.closePath();
+			ctx.stroke();
+			ctx.textAlign = 'center';
+			ctx.textBaseline = 'middle';
+			ctx.font = '500 48px Avenir Next, Montserrat, Lato, Helvetica, sans-serif';
+			ctx.fillText('Drop JS File Here', 0, 0);
+		}
+	}
+	let letters = {
+		t: {
+			top: new LineNode(),
+			stem: new LineNode()
+		},
+		r: {
+			left: new LineNode(),
+			top: new LineNode(),
+			arc: new ArcNode(),
+			middle: new LineNode(),
+			leg: new LineNode()
+		},
+		a: {
+			left: new LineNode(),
+			right: new LineNode(),
+			middle: new LineNode()
+		},
+		c: {
+			arc: new ArcNode()
+		},
+		e: {
+			left: new LineNode(),
+			top: new LineNode(),
+			middle: new LineNode(),
+			bottom: new LineNode()
+		}
+	};
+	let addPos = function(obj, n, t, x, y) {
+		obj[`x${n}`].addNumericKey(t, x, Easing.easeOutExpo);
+		obj[`y${n}`].addNumericKey(t, y, Easing.easeOutExpo);
+	};
+	let addPPos = function(obj, n, ...positions) {
+		let pos = [];
+		for (let i of positions) {
+			pos.push(i);
+			if (pos.length == 3) {
+				addPos(obj, n, pos[0], pos[1], pos[2]);
+				pos = [];
+			}
+		}
+	}
+	let addArcPos = function(obj, t, x, y, r, s, e, f) {
+		if(x !== undefined) obj.x    .addNumericKey(t, x, f || Easing.easeOutExpo);
+		if(y !== undefined) obj.y    .addNumericKey(t, y, f || Easing.easeOutExpo);
+		if(r !== undefined) obj.rad  .addNumericKey(t, r, f || Easing.easeOutExpo);
+		if(s !== undefined) obj.start.addNumericKey(t, s, f || Easing.easeOutExpo);
+		if(e !== undefined) obj.end  .addNumericKey(t, e, f || Easing.easeOutExpo);
+	};
+	// T
+	Transform.addDefaultTransforms(letters.t.top, 0);
+	Transform.addDefaultTransforms(letters.t.stem, 0);
+	addPPos(letters.t.top,  1, 0, 8, 12, .5,  0, 12, 1,  0,  0);
+	addPPos(letters.t.top,  2, 0, 8, 12, .5, 16, 12, 1, 16,  0);
+	addPPos(letters.t.stem, 1, 0, 8, 12, .5,  8, 12, 1,  8,  0);
+	addPPos(letters.t.stem, 2, 0, 8, 12, .5,  8, 12, 1,  8, 24);
+	// R
+	Transform.addDefaultTransforms(letters.r.left, 0);
+	Transform.addDefaultTransforms(letters.r.top, 0);
+	Transform.addDefaultTransforms(letters.r.arc, 0);
+	Transform.addDefaultTransforms(letters.r.middle, 0);
+	Transform.addDefaultTransforms(letters.r.leg, 0);
+	addArcPos(letters.r.arc, .2, 29,  7, 7, Math.PI / 2, Math.PI / 2);
+	addArcPos(letters.r.arc, .5, 29,  7, 7, -Math.PI / 2, Math.PI / 2, Easing.easeOutCubic);
+	addPPos(letters.r.left,   1,  0, 22, 14, .4, 22,  8);
+	addPPos(letters.r.left,   2,  0, 22, 14, .4, 22, 24);
+	addPPos(letters.r.top,    1, .4, 29,  0,  1, 22,  0);
+	addPPos(letters.r.top,    2, .4, 29,  0,  1, 29,  0);
+	addPPos(letters.r.middle, 1, .1, 22, 14, .5, 22, 14);
+	addPPos(letters.r.middle, 2, .1, 22, 14, .5, 29, 14);
+	addPPos(letters.r.leg,    1, .5, 30, 14,  1, 30, 14);
+	addPPos(letters.r.leg,    2, .5, 30, 14,  1, 36, 24);
+	// A
+	Transform.addDefaultTransforms(letters.a.left, 0);
+	Transform.addDefaultTransforms(letters.a.right, 0);
+	Transform.addDefaultTransforms(letters.a.middle, 0);
+	addPPos(letters.a.left,   1, 0, 48, 12, .5, 48,  0, 1, 48,  0);
+	addPPos(letters.a.left,   2, 0, 48, 12, .5, 48, 24, 1, 40, 24);
+	addPPos(letters.a.right,  1, 0, 48, 12, .5, 48,  0, 1, 48,  0);
+	addPPos(letters.a.right,  2, 0, 48, 12, .5, 48, 24, 1, 56, 24);
+	addPPos(letters.a.middle, 1, .5, 48, 13, 1, 43, 16);
+	addPPos(letters.a.middle, 2, .5, 48, 13, 1, 53, 16);
+	// C
+	Transform.addDefaultTransforms(letters.c.arc, 0);
+	addArcPos(letters.c.arc, 0, 72, 12, 12, Math.PI / 2, Math.PI / 2);
+	addArcPos(letters.c.arc, 1, 72, 12, 12, Math.PI / 2, 1.5 * Math.PI);
+	// E
+	Transform.addDefaultTransforms(letters.e.left, 0);
+	Transform.addDefaultTransforms(letters.e.top, 0);
+	Transform.addDefaultTransforms(letters.e.middle, 0);
+	Transform.addDefaultTransforms(letters.e.bottom, 0);
+	addPPos(letters.e.left,   1, 0, 84, 12, .5, 84,  0, .8, 78,  0);
+	addPPos(letters.e.left,   2, 0, 84, 12, .5, 84, 24, .8, 78, 24);
+	addPPos(letters.e.top,    1, 0, 84, 12, .5, 84,  0, .8, 78,  0);
+	addPPos(letters.e.top,    2, 0, 84, 12, .5, 84,  0, .8, 90,  0);
+	addPPos(letters.e.middle, 1, 0, 84, 12, .5, 84,  0, .6, 80, 12, .9, 78, 12);
+	addPPos(letters.e.middle, 2, 0, 84, 12, .5, 84,  0, .6, 80, 12, .9, 86, 12);
+	addPPos(letters.e.bottom, 1, 0, 84, 12, .5, 84,  0, .5, 84, 24,  1, 78, 24);
+	addPPos(letters.e.bottom, 2, 0, 84, 12, .5, 84,  0, .5, 84, 24,  1, 90, 24);
+
 	let scene = new Scene(1280, 800);
 	viewport = new Viewport(mainCanvas, scene);
-	let title = new TitleNode('Hello World');
-	title.transform.translateX.addKey(0, new NumericKey(640));
-	title.transform.translateY.addKey(0, new NumericKey(400));
-	title.transform.scaleX    .addKey(0, new NumericKey(2));
-	title.transform.scaleY    .addKey(0, new NumericKey(2));
-	title.transform.rotate    .addKey(0, new NumericKey(0));
-	title.transform.opacity   .addKey(0, new NumericKey(0));
-	title.transform.translateY.addKey(2, new NumericKey(400));
-	title.transform.scaleX    .addKey(2, new NumericKey(1, Easing.easeOutExpo));
-	title.transform.scaleY    .addKey(2, new NumericKey(1, Easing.easeOutExpo));
-	title.transform.opacity   .addKey(2, new NumericKey(1, Easing.easeOutExpo));
-	title.transform.translateY.addKey(2.3, new NumericKey(600, Easing.easeInCubic))
-	title.transform.opacity   .addKey(2.3, new NumericKey(0,   Easing.easeInCubic));
-	scene.addItem(title);
-	let createFlashTitle = function(t, text, xs, yo = 0, fs = 48, it = false) {
-		if (xs === undefined) xs = 1;
-		let title2 = new TitleNode(text, fs, it);
-		title2.transform.translateX.addKey(0, new NumericKey(640));
-		title2.transform.translateY.addKey(0, new NumericKey(400 + yo));
-		title2.transform.scaleX    .addKey(0, new NumericKey(0));
-		title2.transform.scaleY    .addKey(0, new NumericKey(0));
-		title2.transform.rotate    .addKey(0, new NumericKey(0));
-		title2.transform.opacity   .addKey(0, new NumericKey(0));
-		title2.transform.translateX.addKey(t, new NumericKey(640));
-		title2.transform.translateY.addKey(t, new NumericKey(400 + yo));
-		title2.transform.scaleX    .addKey(t, new NumericKey(0));
-		title2.transform.scaleY    .addKey(t, new NumericKey(0));
-		title2.transform.rotate    .addKey(t, new NumericKey(0));
-		title2.transform.opacity   .addKey(t, new NumericKey(0));
-		title2.transform.scaleX    .addKey(t + 1, new NumericKey(1, Easing.easeOutExpo));
-		title2.transform.scaleY    .addKey(t + 1, new NumericKey(1, Easing.easeOutExpo));
-		title2.transform.opacity   .addKey(t + 1, new NumericKey(1, Easing.easeOutExpo));
-		title2.transform.translateY.addKey(t + 1 + xs, new NumericKey(400 + yo));
-		title2.transform.opacity   .addKey(t + 1 + xs, new NumericKey(1));
-		title2.transform.translateY.addKey(t + 1.3 + xs, new NumericKey(600 + yo, Easing.easeInCubic));
-		title2.transform.opacity   .addKey(t + 1.3 + xs, new NumericKey(0, Easing.easeInCubic));
-		scene.addItem(title2);
+
+	let container = new ContainerNode();
+	for (let i in letters) {
+		for (let j in letters[i]) {
+			container.addItem(letters[i][j]);
+		}
 	}
-	createFlashTitle(2, 'This is', undefined, -50, 32);
-	createFlashTitle(2, 'An Example', undefined, undefined, 75);
-	createFlashTitle(4, 'Of Mediocre Animation', 0);
-	createFlashTitle(5, 'And Text', 0);
-	createFlashTitle(6, 'This Will Stop the Playback', 0);
-	createFlashTitle(6, 'press play to continue', 0, 50, 24);
-	createFlashTitle(7, 'And now:', 0);
-	createFlashTitle(7, 'wait for it', 0, 50, 24, true);
-	createFlashTitle(8.5, 'A Repeater', 0);
-	createFlashTitle(8.5, 'use right-arrow button to continue', 0, 50, 24);
-	createFlashTitle(10, 'The End', 0);
-	scene.backgroundColor = '#00202d';
-	scene.duration = 11.5;
+	Transform.addDefaultTransforms(container, 0);
+	container.transform.translateX.addNumericKey(0, 505);
+	container.transform.translateY.addNumericKey(0, 364);
+	container.transform.translateY.addNumericKey(2, 364);
+	container.transform.scaleX.addNumericKey(0, 3);
+	container.transform.scaleY.addNumericKey(0, 3);
+	container.transform.translateY.addNumericKey(3, 100, Easing.easeInOutQuart);
+	scene.addItem(container);
+	let dropzone = new DropZone();
+	Transform.addDefaultTransforms(dropzone, 0);
+	dropzone.transform.translateX.addNumericKey(0, 640);
+	dropzone.transform.translateY.addNumericKey(0, 400);
+	dropzone.transform.opacity.addNumericKey(0, 0);
+	dropzone.transform.scaleX.addNumericKey(2.5, .8);
+	dropzone.transform.scaleY.addNumericKey(2.5, .8);
+	dropzone.transform.opacity.addNumericKey(2.5, 0);
+	dropzone.transform.scaleX.addNumericKey(3.5, 1, Easing.easeOutExpo);
+	dropzone.transform.scaleY.addNumericKey(3.5, 1, Easing.easeOutExpo);
+	dropzone.transform.opacity.addNumericKey(3.5, 1, Easing.easeOutExpo);
+	scene.addItem(dropzone);
+
+	// scene.backgroundColor = '#00202d';
+	scene.duration = 5;
 	viewport.draw();
-	viewport.loop = true;
-	// viewport.loop = true;
-	viewport.addStops(7, [8.5, 2], [10, 1]);
 	controls.viewport = viewport;
 	controls.draw();
 
