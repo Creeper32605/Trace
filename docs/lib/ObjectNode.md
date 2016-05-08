@@ -6,4 +6,9 @@ none
 
 ## Methods
 ### `draw(ctx, t)`
-Draws the object on the CanvasRenderingContext2D ctx at time t.
+| Argument | Type | Description |
+| -------- | ---- | ----------- |
+| ctx      | CanvasRenderingContext2D | The canvas on which it is to be drawn |
+| t        | Number | The current time |
+
+Draws the object on the canvas at time t.
