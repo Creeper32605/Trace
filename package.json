@@ -1,0 +1,11 @@
+{
+  "name": "Trace",
+  "version": "0.1.0",
+  "main": "main.js",
+  "devDependencies": {
+    "babel-plugin-transform-es2015-modules-amd": "^6.8.0",
+    "grunt": "^1.0.1",
+    "grunt-babel": "^6.0.0",
+    "grunt-contrib-watch": "^1.0.0"
+  }
+}

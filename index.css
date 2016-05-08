@@ -1,0 +1,87 @@
+/*
+ *  This file is part of Trace.
+ *
+ *  Trace is free software: you can redistribute it and/or modify
+ *  it under the terms of the GNU General Public License as published by
+ *  the Free Software Foundation, either version 3 of the License, or
+ *  (at your option) any later version.
+ *
+ *  Trace is distributed in the hope that it will be useful,
+ *  but WITHOUT ANY WARRANTY; without even the implied warranty of
+ *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ *  GNU General Public License for more details.
+ *
+ *  You should have received a copy of the GNU General Public License
+ *  along with Trace.  If not, see <http://www.gnu.org/licenses/>.
+ */
+
+body {
+	font-family: BlinkMacSystemFont, -webkit-system, Avenir Next, Helvetica, Arial, sans-serif;
+	overflow: hidden;
+	background: #000;
+}
+canvas {
+	position: absolute;
+	top: 0;
+	left: 0;
+	width: 100%;
+	height: 100%;
+}
+#controls {
+	position: fixed;
+	bottom: 0;
+	left: 0;
+	width: 100%;
+	height: 36px;
+	background: rgba(0, 0, 0, 0.5);
+	backdrop-filter: blur(10px);
+	display: flex;
+}
+
+#playpause {
+	position: relative;
+	width: 36px;
+	height: 36px;
+	box-sizing: border-box;
+	flex-grow: 1;
+	flex-shrink: 0;
+}
+
+#timeline {
+	position: relative;
+	width: 100%;
+	height: 56px;
+	box-sizing: border-box;
+	flex-grow: 1;
+	flex-shrink: 1;
+}
+#popup-preview {
+	position: fixed;
+	width: 0;
+	height: 0;
+	background: rgba(0, 0, 0, .5);
+	backdrop-filter: blur(10px);
+	border-radius: 4px;
+	overflow: hidden;
+	transform-origin: 50% 100%;
+}
+#popup-canvas {
+	top: 5px;
+	left: 5px;
+	width: calc(100% - 10px);
+	height: calc(100% - 26px);
+}
+#popup-time {
+	color: #fff;
+	font: 500 14px Avenir Next, Monsterrat, Lato, sans-serif;
+	position: absolute;
+	left: 0;
+	bottom: 0;
+	width: 100%;
+	padding: 3px 5px;
+	box-sizing: border-box;
+	text-align: center;
+	white-space: nowrap;
+	overflow: hidden;
+	text-overflow: ellipsis;
+}
