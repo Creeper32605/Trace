@@ -21,7 +21,7 @@ module.exports = function(grunt) {
 					'c/lib/StaticProperty.js':    'lib/StaticProperty.js',
 					'c/lib/Transform.js':         'lib/Transform.js',
 					'c/lib/TransformableNode.js': 'lib/TransformableNode.js',
-					'c/lib/Viewport.js':          'lib/Viewport.js',
+					'c/lib/Viewport.js':          'lib/Viewport.js'
 				}
 			}
 		},

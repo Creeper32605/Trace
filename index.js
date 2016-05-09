@@ -68,9 +68,11 @@ window.onresize = resizeCanvases;
 
 controls = new Controls(controlsEl, ctrlCanvas, app, popupEl, ppupCanvas, popupTime);
 
-xipc.on('fullscreen-notifier', function(e, state) {
-	controls.setFullscreenButton(state == 'true' ? 1 : 0);
-});
+if ('xipc' in window) {
+	xipc.on('fullscreen-notifier', function(e, state) {
+		controls.setFullscreenButton(state == 'true' ? 1 : 0);
+	});
+}
 
 {
 	let LineNode = class LineNode extends TransformableNode {
@@ -112,9 +114,12 @@ xipc.on('fullscreen-notifier', function(e, state) {
 			ctx.stroke();
 		}
 	};
-	let DropZone = class DropZone extends TransformableNode {
+	let DropArea = class DropArea extends TransformableNode {
 		constructor() {
 			super();
+			this.dropping = false;
+			this.dropastart = Date.now();
+			this.dropaend = Date.now();
 		}
 		draw(ctx, t) {
 			super.draw(ctx, t);
@@ -122,18 +127,36 @@ xipc.on('fullscreen-notifier', function(e, state) {
 			ctx.strokeStyle = '#fff';
 			ctx.lineCap = 'butt';
 			ctx.lineJoin = 'round';
-			ctx.beginPath();
 			let r = 5;
-			ctx.moveTo(-250, -140 + 2 * r);
-			ctx.arcTo(-250, -140, -250 + r, -140, 2 * r);
-			ctx.arcTo(250, -140, 250, -140 + r, 2 * r);
-			ctx.arcTo(250, 140, 250 - r, 140, 2 * r);
-			ctx.arcTo(-250, 140, -250, 140 - r, 2 * r);
+			let w, h;
+			let a = this.dropastart, b = this.dropaend, c = Date.now();
+			// animation progress
+			let anpr = c > b ? 1 : (c < a ? 0 : (c - a) / (b - a));
+			// whether it is animating
+			let anim = anpr >= 1 ? false : true;
+			let eased = anim ? Easing.easeOutExpo(anpr) : anpr;
+
+			if (anim && this.dropping) { w = 250 + eased * 50; h = 140 + eased * 60; }
+			else if (anim && !this.dropping) { w = 300 - eased * 50; h = 200 - eased * 60; }
+			else if (!this.dropping) { w = 250; h = 140; }
+			else { w = 300; h = 200; }
+
+			ctx.beginPath();
+			ctx.moveTo(-w, -h + 2 * r);
+			ctx.arcTo( -w, -h, -w + r,     -h, 2 * r);
+			ctx.arcTo(  w, -h,      w, -h + r, 2 * r);
+			ctx.arcTo(  w,  h,  w - r,      h, 2 * r);
+			ctx.arcTo( -w,  h,     -w,  h - r, 2 * r);
 			ctx.closePath();
 			ctx.stroke();
 			ctx.textAlign = 'center';
 			ctx.textBaseline = 'middle';
-			ctx.font = '500 48px Avenir Next, Montserrat, Lato, Helvetica, sans-serif';
+			let fsize;
+			if (anim && this.dropping) fsize = 48 + eased * 10;
+			else if (anim && !this.dropping) fsize = 58 - eased * 10;
+			else if (!this.dropping) fsize = 48;
+			else fsize = 58;
+			ctx.font = `500 ${fsize}px Avenir Next, Montserrat, Lato, Helvetica, sans-serif`;
 			ctx.fillText('Drop JS File Here', 0, 0);
 		}
 	}
@@ -253,24 +276,84 @@ xipc.on('fullscreen-notifier', function(e, state) {
 	container.transform.scaleY.addNumericKey(0, 3);
 	container.transform.translateY.addNumericKey(3, 100, Easing.easeInOutQuart);
 	scene.addItem(container);
-	let dropzone = new DropZone();
-	Transform.addDefaultTransforms(dropzone, 0);
-	dropzone.transform.translateX.addNumericKey(0, 640);
-	dropzone.transform.translateY.addNumericKey(0, 400);
-	dropzone.transform.opacity.addNumericKey(0, 0);
-	dropzone.transform.scaleX.addNumericKey(2.5, .8);
-	dropzone.transform.scaleY.addNumericKey(2.5, .8);
-	dropzone.transform.opacity.addNumericKey(2.5, 0);
-	dropzone.transform.scaleX.addNumericKey(3.5, 1, Easing.easeOutExpo);
-	dropzone.transform.scaleY.addNumericKey(3.5, 1, Easing.easeOutExpo);
-	dropzone.transform.opacity.addNumericKey(3.5, 1, Easing.easeOutExpo);
-	scene.addItem(dropzone);
+
+	let dropareaEl = document.querySelector('#drop-area');
+
+	let droparea = new DropArea();
+	Transform.addDefaultTransforms(droparea, 0);
+	droparea.transform.translateX.addNumericKey(0, 640);
+	droparea.transform.translateY.addNumericKey(0, 400);
+	droparea.transform.opacity.addNumericKey(0, 0);
+	droparea.transform.scaleX.addNumericKey(2.5, .8);
+	droparea.transform.scaleY.addNumericKey(2.5, .8);
+	droparea.transform.opacity.addNumericKey(2.5, 0);
+	droparea.transform.scaleX.addNumericKey(3.5, 1, Easing.easeOutExpo);
+	droparea.transform.scaleY.addNumericKey(3.5, 1, Easing.easeOutExpo);
+	droparea.transform.opacity.addNumericKey(3.5, 1, Easing.easeOutExpo);
+	scene.addItem(droparea);
+
+	let enter = function(e) {
+		e.preventDefault(); e.stopPropagation();
+		if (!droparea.dropping) {
+			droparea.dropping = true;
+			droparea.dropastart = Date.now();
+			droparea.dropaend = Date.now() + 500;
+		}
+	};
+	let end = function(e) {
+		e.preventDefault(); e.stopPropagation();
+		if (droparea.dropping) {
+			droparea.dropping = false;
+			droparea.dropastart = Date.now();
+			droparea.dropaend = Date.now() + 500;
+		}
+	};
+	let drop = function(e) {
+		let file = e.dataTransfer.files[0];
+		if (!file) return;
+		if (!file.type.includes('javascript'))
+			alert('Not Javascript');
+		let reader = new FileReader();
+		reader.onload = function(e) {
+			let fn = new Function('viewport', reader.result);
+			viewport.stops = [];
+			viewport.pause();
+			viewport.loop = false;
+			fn.apply(viewport, [viewport]);
+ 		};
+		reader.readAsText(file);
+	};
+	document.body.addEventListener('drag', (e) => {
+		e.preventDefault(); e.stopPropagation();
+	});
+	document.body.addEventListener('dragstart', (e) => {
+		e.preventDefault(); e.stopPropagation();
+	});
+	document.body.addEventListener('dragend', (e) => {
+		end(e);
+	});
+	document.body.addEventListener('dragover', (e) => {
+		enter(e);
+	});
+	document.body.addEventListener('dragenter', (e) => {
+		enter(e);
+	});
+	document.body.addEventListener('dragleave', (e) => {
+		end(e);
+	});
+	document.body.addEventListener('drop', (e) => {
+		end(e);
+		drop(e);
+	});
 
 	// scene.backgroundColor = '#00202d';
-	scene.duration = 5;
+	scene.duration = 4;
 	viewport.draw();
+	viewport.addStops([3.3, 2], [4, 1]);
+	viewport.loop = true;
 	controls.viewport = viewport;
 	controls.draw();
+	viewport.play();
 
 	viewport.on('pause', () => {
 		if (controls.s.play.animto == 0)

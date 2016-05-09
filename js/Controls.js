@@ -89,7 +89,7 @@ class Controls {
 		this.canvas.addEventListener('mousedown', (e) => {
 			if (e.pageX >= 46 && e.pageX <= innerWidth - 82) {
 				dragging = true;
-				this.viewport.currentTime = this.viewport.duration * (e.pageX - 46) / (innerWidth - 82 - 46);
+				this.viewport.currentTime = this.viewport.duration * (e.pageX - 46) / (innerWidth - 46 * 2);
 				this.draw();
 			}
 		});
@@ -124,7 +124,7 @@ class Controls {
 				width = previewAspectRatio > 1 ? mVPSize : mVPSize / previewAspectRatio;
 				height = (previewAspectRatio < 1 ? mVPSize : mVPSize / previewAspectRatio) + 26;
 				let lpos = Math.min(innerWidth - 10 - width, Math.max(10, e.pageX - width / 2));
-				let vpos = (e.pageX - 46) / (innerWidth - 82 - 46) * this.viewport.duration;
+				let vpos = (e.pageX - 46) / (innerWidth - 46 * 2) * this.viewport.duration;
 				if (!popupIsOpen) {
 					popupIsOpen = true;
 					Velocity(popupEl, 'stop');

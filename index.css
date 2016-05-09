@@ -85,3 +85,14 @@ canvas {
 	overflow: hidden;
 	text-overflow: ellipsis;
 }
+
+#drop-area {
+	position: fixed;
+	top: 0;
+	left: 0;
+	width: 0;
+	height: 0;
+}
+#drop-area input {
+	opacity: 0;
+}
