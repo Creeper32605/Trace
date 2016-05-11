@@ -26,7 +26,7 @@ class Controls {
 		this.app = app;
 		this.canvas = canvas;
 		this.ctx = canvas.getContext('2d');
-		this.viewport;
+		this._viewport;
 		this.s = {
 			drawLoop: false,
 			element: {
@@ -178,6 +178,17 @@ class Controls {
 			dragging = false;
 		});
 	}
+	get viewport() {
+		return this._viewport;
+	}
+	set viewport(value) {
+		value.on('play',       () => { this.update(); });
+		value.on('pause',      () => { this.update(); });
+		value.on('stop',       () => { this.update(); });
+		value.on('end',        () => { this.update(); });
+		value.on('timeupdate', () => { this.update(); });
+		this._viewport = value;
+	}
 	startDrawLoop() {
 		if (this.drawLoop) return;
 		this.drawLoop = true;
@@ -210,6 +221,13 @@ class Controls {
 		this.s.fullscreen.start = Date.now();
 		this.s.fullscreen.end = Date.now() + 500;
 		this.startDrawLoop();
+	}
+	update() {
+		this.startDrawLoop();
+		if (this.viewport.playing && this.s.play.animto == 1)
+			this.setPlayButton(0);
+		else if (!this.viewport.playing && this.s.play.animto == 0)
+			this.setPlayButton(1);
 	}
 	drawPlayButton(ctx) {
 		// 16x16 in 36x36 box
