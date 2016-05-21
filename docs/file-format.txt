@@ -1,0 +1,60 @@
+                                                                 Version 1.0
+                           —— File Format ——
+
+    Every file is composed of two parts.
+     -  Definitions   Javascript
+            Javascript classes defining custom nodes of elements.
+            (Can also include regular code, everything will be run)
+            [!] Will be evaluated without any checks!
+     -  Timeline      Binary (technically a JS comment)
+            Lists all elements in the scene and their animation keys.
+            Can be anywhere in the file.
+    The Javascript definitions must also specify all dependencies and
+    load them as the timeline will not.  However, the default classes
+    will always be loaded.
+
+    NOTE: Dependencies are currently not a thing.
+
+                        < The Timeline Format >
+
+    The binary section begins with the following
+     1| /* +-[   version    ]-=<|-++---+-|-++-+--+|-++-+++-|>=------------------+ *\
+    and ends with
+     1| \* +------------------=<|-++--+-+|-++-+++-|-++--+--|>=------------------+ */
+    The version must be formatted as `<major>.<minor>`, and can be op-
+    tionally centered within the square brackets.
+    
+    The start and end blocks of the binary section are separated from
+    the body by newlines. The body itself is base64, with a max width
+    of 76 characters but no virtual limitations to actual length.
+
+    The binary string must begin with this information:
+    (lengths are in bytes)
+    len  type    description
+       1 uint    name length
+       ^ utf-8   name
+       2 uint    scene width
+       2 uint    scene height
+       4 uint    scene length
+       4 uint    stops section length
+    Every timeline stop is defined by the following:
+       4 uint    position on timeline
+       1 uint    type: 0 for regular, 1 for repeater, 2 for marker
+    Every node is defined by the following:
+       2 uint    node UID
+       1 uint    class length
+       ^ utf-8   class
+       2 uint    parent node UID (0 for none) - will use addItem
+       4 uint    properties section length
+     —— Each property is defined by the following:
+           2 uint    property name length
+           ^ utf-8   property name
+           4 uint    keys length
+         —— Each key is defined by the following:
+               1 uint    key class name length
+               ^ utf-8   key class name
+               4 uint    key position in time
+               4 uint    key value length
+               ^ any     key value
+               1 uint    easing function name length
+               ^ utf-8   easing function name

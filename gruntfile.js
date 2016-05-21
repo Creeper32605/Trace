@@ -8,6 +8,8 @@ module.exports = function(grunt) {
 				files: {
 					'c/index.js':                 'index.js',
 					'c/js/Controls.js':           'js/Controls.js',
+					'c/js/File.js':               'js/File.js',
+					'c/js/SceneBuilder.js':       'js/SceneBuilder.js',
 					'c/lib/AnimatedProperty.js':  'lib/AnimatedProperty.js',
 					'c/lib/ContainerNode.js':     'lib/ContainerNode.js',
 					'c/lib/Easing.js':            'lib/Easing.js',

@@ -16,6 +16,8 @@
  */
 
 import Controls from 'js/Controls';
+import File from 'js/File';
+import SceneBuilder from 'js/SceneBuilder';
 import Easing from 'lib/Easing';
 import Scene from 'lib/Scene';
 import Viewport from 'lib/Viewport';
@@ -315,11 +317,13 @@ if ('xipc' in window) {
 			alert('Not Javascript');
 		let reader = new FileReader();
 		reader.onload = function(e) {
-			let fn = new Function('viewport', reader.result);
-			viewport.stops = [];
-			viewport.pause();
-			viewport.loop = false;
-			fn.apply(viewport, [viewport]);
+			let a = File.readFile(reader.result);
+			console.log(a);
+			let b = File.binToJSON(a[2], a[1]);
+			console.log(b);
+			SceneBuilder.build(a[0], b, viewport);
+			console.log(viewport);
+			viewport.draw();
  		};
 		reader.readAsText(file);
 	};
