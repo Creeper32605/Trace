@@ -35,7 +35,8 @@
        ^ utf-8   name
        2 uint    scene width
        2 uint    scene height
-       4 uint    scene length
+       4 uint    scene duration
+       1 uint    0 for not looping, 1 for looping
        4 uint    stops section length
     Every timeline stop is defined by the following:
        4 uint    position on timeline
