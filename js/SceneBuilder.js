@@ -33,13 +33,6 @@ import _libViewport from 'lib/Viewport';
 
 export default {
 	build: function(__defs, __data, viewport) {
-		viewport.pause();
-		let scene = new _libScene(__data.width, __data.height);
-		scene.duration = __data.duration;
-		viewport.stops = __data.stops;
-		viewport.loop = __data.loop;
-		viewport.scene = scene;
-
 		// this is for some reason mandatory
 		let AnimatedProperty  = _libAnimatedProperty;
 		let ContainerNode     = _libContainerNode;
@@ -55,6 +48,18 @@ export default {
 		let Transform         = _libTransform;
 		let TransformableNode = _libTransformableNode;
 		let Viewport          = _libViewport;
+
+		if (!__data.hasOwnProperty('name')) {
+			eval(__defs);
+			return;
+		}
+		viewport.pause();
+		let scene = new _libScene(__data.width, __data.height);
+		scene.duration = __data.duration;
+		viewport.stops = __data.stops;
+		viewport.loop = __data.loop;
+		viewport.scene = scene;
+
 
 		// it's the user's fault if they cause the apocalypse
 		let exports = {};

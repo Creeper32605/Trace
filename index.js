@@ -318,9 +318,7 @@ if ('xipc' in window) {
 		let reader = new FileReader();
 		reader.onload = function(e) {
 			let a = File.readFile(reader.result);
-			console.log(a);
 			let b = File.binToJSON(a[2], a[1]);
-			console.log(b);
 			SceneBuilder.build(a[0], b, viewport);
 			console.log(viewport);
 			viewport.draw();

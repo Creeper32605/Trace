@@ -54,24 +54,29 @@ export default {
 		regex = new RegExp(regtemp, 'i');
 		let version = 0.0;
 		let bin = '';
-		for (let i of e) {
-			let matches = i.match(regex);
-			if (matches && matches[2] == '|-++---+-|-++-+--+|-++-+++-|' &&
-				matches[4] == '|-++--+-+|-++-+++-|-++--+--|') {
-				version = parseFloat(matches[1]);
-				bin = matches[3];
-				break;
+		if (e) {
+			for (let i of e) {
+				let matches = i.match(regex);
+				if (matches && matches[2] == '|-++---+-|-++-+--+|-++-+++-|' &&
+					matches[4] == '|-++--+-+|-++-+++-|-++--+--|') {
+					version = parseFloat(matches[1]);
+					bin = matches[3];
+					break;
+				}
 			}
 		}
-		// remove binary section
-		let binPos = fileString.indexOf(bin);
-		fileString = fileString.substr(0, binPos - 76) + fileString.substr(binPos + bin.length + 76);
+		if (bin) {
+			// remove binary section
+			let binPos = fileString.indexOf(bin);
+			fileString = fileString.substr(0, binPos - 76) + fileString.substr(binPos + bin.length + 76);
+			bin = atob(bin.replace(/\n/g, ''));
+		}
 		// remove redundant newlines at file end
 		fileString = fileString.replace(/\n+$/, '\n');
-		bin = atob(bin.replace(/\n/g, ''));
 		return [fileString, version, bin];
 	},
 	binToJSON: function(bin, version) {
+		if (!bin) return {};
 		if (version !== 1) throw new Error('Versions other than 1.0 not supported');
 		let dv = new jDataView(bin);
 		let data = BinaryTools.reader([
