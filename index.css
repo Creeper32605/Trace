@@ -20,6 +20,24 @@ body {
 	overflow: hidden;
 	background: #000;
 }
+noscript {
+	position: fixed;
+	top: 0;
+	left: 0;
+	width: 100%;
+	height: 100%;
+	background: #00202d;
+	color: #fff;
+	z-index: 10;
+	display: flex;
+	justify-content: center;
+	align-items: center;
+}
+noscript span {
+	font-size: 6vh;
+	text-align: center;
+	padding: 0 6vw;
+}
 canvas {
 	position: absolute;
 	top: 0;
