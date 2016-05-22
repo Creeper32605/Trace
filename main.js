@@ -21,6 +21,7 @@ const BrowserWindow = electron.BrowserWindow;
 const ipcMain = electron.ipcMain;
 
 let mainWindow = null;
+let editorWindow = null;
 
 app.on('window-all-closed', () => {
 	app.quit();
@@ -41,6 +42,7 @@ app.on('ready', () => {
 	mainWindow.loadURL(`file://${__dirname}/index.html`);
 	mainWindow.on('closed', () => {
 		mainWindow = null;
+		app.quit();
 	});
 	mainWindow.on('enter-full-screen', function() {
 		mainWindow.webContents.send('fullscreen-notifier', 'true');
@@ -49,7 +51,31 @@ app.on('ready', () => {
 		mainWindow.webContents.send('fullscreen-notifier', 'false');
 	});
 });
-ipcMain.on('asynchronous-message', function(event, arg) {
+let openEditor = function() {
+	editorWindow = new BrowserWindow({
+		width: 800, height: 600,
+		minWidth: 200, minHeight: 100,
+		title: 'Editor',
+		darkTheme: true,
+		titleBarStyle: 'normal',
+		backgroundColor: '#000',
+		webPreferences: {
+			experimentalFeatures: true
+		}
+	});
+	editorWindow.loadURL(`file://${__dirname}/editor.html`);
+	editorWindow.on('closed', () => {
+		editorWindow = null;
+	});
+};
+let closeEditor = function() {
+	if (editorWindow) editorWindow.close();
+};
+ipcMain.on('main-window', function(event, arg) {
 	if (arg == 'fullscreen')
 		mainWindow.setFullScreen(!mainWindow.isFullScreen());
+	else if (arg == 'open-editor')
+		openEditor();
+	else if (arg == 'close-editor')
+		closeEditor();
 });

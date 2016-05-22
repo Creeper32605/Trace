@@ -19,6 +19,9 @@ body {
 	font-family: BlinkMacSystemFont, -webkit-system, Avenir Next, Helvetica, Arial, sans-serif;
 	overflow: hidden;
 	background: #000;
+	-webkit-user-select: none;
+	-moz-user-select: none;
+	user-select: none;
 }
 noscript {
 	position: fixed;
@@ -46,7 +49,7 @@ canvas {
 	height: 100%;
 }
 #controls {
-	position: fixed;
+	position: absolute;
 	bottom: 0;
 	left: 0;
 	width: 100%;
@@ -56,23 +59,7 @@ canvas {
 	display: flex;
 }
 
-#playpause {
-	position: relative;
-	width: 36px;
-	height: 36px;
-	box-sizing: border-box;
-	flex-grow: 1;
-	flex-shrink: 0;
-}
 
-#timeline {
-	position: relative;
-	width: 100%;
-	height: 56px;
-	box-sizing: border-box;
-	flex-grow: 1;
-	flex-shrink: 1;
-}
 #popup-preview {
 	position: fixed;
 	width: 0;

@@ -40,7 +40,12 @@ class Controls {
 				start: Date.now(),
 				end: Date.now()
 			},
-			menu: {},
+			menu: {
+				// 0 for close, 1 for open
+				animto: 0,
+				start: Date.now(),
+				end: Date.now()
+			},
 			fullscreen: {
 				// 0 for >< to <>, 1 for <> to ><
 				animto: 0,
@@ -70,6 +75,8 @@ class Controls {
 		this.canvas.addEventListener('click', (e) => {
 			if (e.pageX < 36) {
 				this.setPlayButton();
+			} else if (e.pageX < innerWidth - 36 && e.pageX > innerWidth - 72) {
+				this.setMenuButton();
 			} else if (e.pageX > innerWidth - 36) {
 				if (!('xipc' in window)) {
 					this.setFullscreenButton();
@@ -82,14 +89,14 @@ class Controls {
 					else if (this.app.webkitRequestFullscreen)
 						this.app.webkitRequestFullscreen(Element.ALLOW_KEYBOARD_INPUT);
 				} else
-					xipc.send('asynchronous-message', 'fullscreen');
+					xipc.send('main-window', 'fullscreen');
 			}
 		});
 		let dragging = false;
 		this.canvas.addEventListener('mousedown', (e) => {
 			if (e.pageX >= 46 && e.pageX <= innerWidth - 82) {
 				dragging = true;
-				this.viewport.currentTime = this.viewport.duration * (e.pageX - 46) / (innerWidth - 46 * 2);
+				this.viewport.currentTime = this.viewport.duration * (e.pageX - 46) / (innerWidth - 128);
 				this.draw();
 			}
 		});
@@ -119,12 +126,12 @@ class Controls {
 			}
 			// popup stuff
 			if (e.pageY > innerHeight - 36 && this.s.element.visible &&
-				e.pageX >= 46 && e.pageX <= innerWidth - 46) {
+				e.pageX >= 46 && e.pageX <= innerWidth - 82) {
 				let previewAspectRatio = this.viewport.scene.width / this.viewport.scene.height;
 				width = previewAspectRatio > 1 ? mVPSize : mVPSize / previewAspectRatio;
 				height = (previewAspectRatio < 1 ? mVPSize : mVPSize / previewAspectRatio) + 26;
 				let lpos = Math.min(innerWidth - 10 - width, Math.max(10, e.pageX - width / 2));
-				let vpos = (e.pageX - 46) / (innerWidth - 46 * 2) * this.viewport.duration;
+				let vpos = (e.pageX - 46) / (innerWidth - 128) * this.viewport.duration;
 				if (!popupIsOpen) {
 					popupIsOpen = true;
 					Velocity(popupEl, 'stop');
@@ -150,6 +157,7 @@ class Controls {
 				let m = Math.floor((vpos % 3600) / 60);
 				let s = (vpos % 3600).toFixed(2);
 				popupTime.textContent = `${(h ? `${h}:` : '')}${m ? `${m}:` : ''}${s}`;
+				ppvp.scene = this.viewport.scene;
 				ppvp.draw(undefined, vpos);
 				this.viewport.scene.parent = this.viewport;
 			} else {
@@ -169,9 +177,9 @@ class Controls {
 				this.setPlayButton(1);
 			}
 			if (e.pageX < 46) this.viewport.currentTime = 0;
-			else if (e.pageX > innerWidth - 46) this.viewport.currentTime = this.viewport.duration;
+			else if (e.pageX > innerWidth - 82) this.viewport.currentTime = this.viewport.duration;
 			else this.viewport.currentTime =
-				this.viewport.duration * (e.pageX - 46) / (innerWidth - 46 * 2);
+				this.viewport.duration * (e.pageX - 46) / (innerWidth - 128);
 			this.draw();
 		});
 		document.addEventListener('mouseup', (e) => {
@@ -194,7 +202,7 @@ class Controls {
 		this.drawLoop = true;
 		let loop = function() {
 			if (this.s.play.end > Date.now() || this.s.fullscreen.end > Date.now() ||
-				this.viewport.playing)
+				this.s.menu.end > Date.now() || this.viewport.playing)
 				requestAnimationFrame(loop);
 			else
 				this.drawLoop = false;
@@ -213,6 +221,19 @@ class Controls {
 			this.viewport.play();
 		else
 			this.viewport.pause();
+	}
+	setMenuButton(state) {
+		if (state == undefined) state = this.s.menu.animto == 0 ? 1 : 0;
+		if (!('xipc' in window)) state = 0;
+		if (state == this.s.menu.animto) return;
+		this.s.menu.animto = state;
+		this.s.menu.start = Date.now();
+		this.s.menu.end = Date.now() + 500;
+		this.startDrawLoop();
+		if (this.s.menu.animto == 1)
+			xipc.send('main-window', 'open-editor');
+		else
+			xipc.send('main-window', 'close-editor');
 	}
 	setFullscreenButton(state) {
 		if (state == undefined) state = this.s.fullscreen.animto == 0 ? 1 : 0;
@@ -351,6 +372,62 @@ class Controls {
 		ctx.lineTo(xpos, 24);
 		ctx.stroke();
 	}
+	drawMenuButton(ctx) {
+		ctx.strokeStyle = '#fff';
+		ctx.globalAlpha = 1;
+		ctx.lineWidth = 2;
+		ctx.lineCap = 'round';
+		ctx.setLineDash([]);
+		ctx.clearRect(0, 0, 36, 36);
+
+		let a = this.s.menu.start, b = this.s.menu.end, c = Date.now();
+		let d = this.s.menu.animto;
+		let mbp = c > b ? 1 : (c < a ? 0 : (c - a) / (b - a));
+		let anim = mbp >= 1 ? false : true;
+		let p = Easing.easeOutExpo(mbp);
+
+		// draw dots (at 12, 18 and 24)
+		ctx.beginPath();
+		if (d == 0 && !anim) {
+			ctx.lineWidth = 2.5;
+			ctx.moveTo(12, 17.9);
+			ctx.lineTo(12, 18.1);
+			ctx.moveTo(18, 17.9);
+			ctx.lineTo(18, 18.1);
+			ctx.moveTo(24, 17.9);
+			ctx.lineTo(24, 18.1);
+		}
+		// draw square (10,12 -> 26,24)
+		if (d == 1 && !anim) {
+			ctx.moveTo(10, 12);
+			ctx.lineTo(26, 12);
+			ctx.lineTo(26, 24);
+			ctx.lineTo(10, 24);
+			ctx.closePath();
+		}
+
+		// draw intermediate 1 (line)
+		if (((d == 1 && p < .5) || (d == 0 && p >= .5)) && anim) {
+			let xp = d == 1 ? p * 2 : 1 - (p * 2 - 1);
+			ctx.lineWidth = 2.5 - .5 * xp;
+			ctx.moveTo(12 + 6 * xp, 18);
+			ctx.lineTo(12.1 + 5.9 * xp, 18);
+			ctx.moveTo(17.9 - 7.9 * xp, 18);
+			ctx.lineTo(18.1 + 7.9 * xp, 18);
+			ctx.moveTo(23.9 - 5.9 * xp, 18);
+			ctx.lineTo(24 - 6 * xp, 18);
+		}
+		// draw intermediate 2 (rect)
+		if (((d == 1 && p >= .5) || (d == 0 && p < .5)) && anim) {
+			let xp = d == 1 ? p * 2 - 1 : -(p * 2 - 1);
+			ctx.moveTo(10, 18 - 6 * xp);
+			ctx.lineTo(26, 18 - 6 * xp);
+			ctx.lineTo(26, 18 + 6 * xp);
+			ctx.lineTo(10, 18 + 6 * xp);
+			ctx.closePath();
+		}
+		ctx.stroke();
+	}
 	drawFullscreenButton(ctx) {
 		ctx.strokeStyle = '#fff';
 		ctx.globalAlpha = 1;
@@ -393,8 +470,10 @@ class Controls {
 
 		this.drawPlayButton(ctx);
 		ctx.transform(1, 0, 0, 1, 36, 0);
-		this.drawTimeline(ctx, this.viewport, width - 72);
-		ctx.transform(1, 0, 0, 1, width - 72, 0);
+		this.drawTimeline(ctx, this.viewport, width - 108);
+		ctx.transform(1, 0, 0, 1, width - 108, 0);
+		this.drawMenuButton(ctx);
+		ctx.transform(1, 0, 0, 1, 36, 0);
 		this.drawFullscreenButton(ctx);
 	}
 }
