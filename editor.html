@@ -24,22 +24,109 @@
 	<body>
 		<noscript><span>This requires Javascript</span></noscript>
 		<div id="editor" class="jflex-h">
-			<div id="js-editor-wrap">
+			<div id="js-editor-wrap" class="b-right">
 				<header>
-					<button id="reeval"></button>
+					<button id="b-run">Run in Viewport</button>
 				</header>
-				<div id="js-editor">n/a</div>
+				<div id="js-editor"><br><center>Insert Javascript Editor Here</center></div>
 			</div>
-			<div class="jflex-v">
+			<div id="timeline-editor-wrap" class="jflex-v">
 				<div id="objects">
-					<div id="objects-list"></div>
+					<div id="objects-list">
+						<div class="object">
+							<div class="object-class">InfoText</div>
+							<div class="object-name">Dummy Objects</div>
+						</div>
+						<div class="object container open">
+							<div class="object-class">Scene</div>
+							<div class="object-name">Scene</div>
+							<div class="container-items">
+								<div class="object">
+									<div class="object-class">RectNode</div>
+									<div class="object-name">Rectangle</div>
+								</div>
+								<div class="object">
+									<div class="object-class">CircleNode</div>
+									<div class="object-name">Circle</div>
+								</div>
+								<div class="object">
+									<div class="object-class">TextNode</div>
+									<div class="object-name">Text 1</div>
+								</div>
+								<div class="object">
+									<div class="object-class">FXWaterNode</div>
+									<div class="object-name">Water</div>
+								</div>
+								<div class="object">
+									<div class="object-class">TextNode</div>
+									<div class="object-name">Text 2</div>
+								</div>
+								<div class="object">
+									<div class="object-class">SomeMiscObjectNode</div>
+									<div class="object-name">Misc Object</div>
+								</div>
+							</div>
+						</div>
+						<div class="object container">
+							<div class="object-class">ContainerNode</div>
+							<div class="object-name">Misc Container</div>
+							<div class="container-items">
+								<div class="object">
+									<div class="object-name">Misc Object</div>
+									<div class="object-class">MiscObjectNode</div>
+								</div>
+							</div>
+						</div>
+						<div class="object">
+							<div class="object-class">SomeUnnecessarilyLongClassNameNode</div>
+							<div class="object-name">Misc Object With An Unnecessarily Long Name asdfghjklmnopqr</div>
+						</div>
+					</div>
 				</div>
-				<div id="timeline">
-					<div id="sidebar">
+				<div id="timeline" class="jflex-h b-top">
+					<div id="sidebar" class="b-right">
 						<header>
-							<input type="search">
+							<input type="search" placeholder="Search Properties">
 						</header>
-						<div id="properties"></div>
+						<div id="properties">
+							<div class="property">
+								<div class="property-name">Dummy Properties</div>
+							</div>
+							<div class="property dropdown open">
+								<div class="property-name">Transform</div>
+								<div class="dropdown-items">
+									<div class="property">
+										<div class="property-name">TranslateX</div>
+									</div>
+									<div class="property">
+										<div class="property-name">TranslateY</div>
+									</div>
+									<div class="property">
+										<div class="property-name">ScaleX</div>
+									</div>
+									<div class="property">
+										<div class="property-name">ScaleY</div>
+									</div>
+									<div class="property">
+										<div class="property-name">Rotate</div>
+									</div>
+									<div class="property">
+										<div class="property-name">Opacity</div>
+									</div>
+								</div>
+							</div>
+							<div class="property dropdown">
+								<div class="property-name">Misc Dropdown</div>
+								<div class="dropdown-items">
+									<div class="property">
+										<div class="property-name">Misc Property</div>
+									</div>
+								</div>
+							</div>
+							<div class="property">
+								<div class="property-name">Misc Property With An Unnecessarily Long Name asdfg</div>
+							</div>
+						</div>
 					</div>
 					<canvas id="timeline-canvas"></canvas>
 				</div>
