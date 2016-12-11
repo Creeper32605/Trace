@@ -1,45 +1,12 @@
 <!DOCTYPE html>
-<!--
-  This file is part of Trace.
-
-  Trace is free software: you can redistribute it and/or modify
-  it under the terms of the GNU General Public License as published by
-  the Free Software Foundation, either version 3 of the License, or
-  (at your option) any later version.
-
-  Trace is distributed in the hope that it will be useful,
-  but WITHOUT ANY WARRANTY; without even the implied warranty of
-  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-  GNU General Public License for more details.
-
-  You should have received a copy of the GNU General Public License
-  along with Trace.  If not, see <http://www.gnu.org/licenses/>.
- -->
 <html lang="en">
-	<head>
-		<meta charset="UTF-8">
-		<title>Trace</title>
-		<link rel="stylesheet" href="index.css">
-	</head>
-	<body>
-		<noscript><span>This app requires Javascript</span></noscript>
-		<div id="app">
-			<canvas id="main-canvas"></canvas>
-			<form id="drop-area"><input type="file"></form>
-			<div id="controls">
-				<canvas id="controls-canvas"></canvas>
-			</div>
-			<div id="popup-preview">
-				<canvas id="popup-canvas"></canvas>
-				<div id="popup-time">0.00</div>
-			</div>
-		</div>
-		<script>
-			try {
-				window.xipc = require('electron').ipcRenderer;
-			} catch(err) {}
-		</script>
-		<script src="velocity.js"></script>
-		<script src="require.js" data-main="c/index.js"></script>
-	</body>
+<head>
+  <meta charset="UTF-8">
+  <title>Trace</title>
+
+  <link rel="stylesheet" href="main.css">
+</head>
+<body>
+  <script src="js/init.js"></script>
+</body>
 </html>

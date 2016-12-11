@@ -1,2 +1,4 @@
 node_modules
-c
+.idea
+__
+*assets

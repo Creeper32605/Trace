@@ -1,81 +1,81 @@
-/*
- *  This file is part of Trace.
- *
- *  Trace is free software: you can redistribute it and/or modify
- *  it under the terms of the GNU General Public License as published by
- *  the Free Software Foundation, either version 3 of the License, or
- *  (at your option) any later version.
- *
- *  Trace is distributed in the hope that it will be useful,
- *  but WITHOUT ANY WARRANTY; without even the implied warranty of
- *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- *  GNU General Public License for more details.
- *
- *  You should have received a copy of the GNU General Public License
- *  along with Trace.  If not, see <http://www.gnu.org/licenses/>.
- */
+const {app, BrowserWindow, dialog} = require('electron')
+const path = require('path')
+const url = require('url')
 
-const electron = require('electron');
-const app = electron.app;
-const BrowserWindow = electron.BrowserWindow;
-const ipcMain = electron.ipcMain;
+const menu = require('./js/menu')
 
-let mainWindow = null;
-let editorWindow = null;
+let createWindow = function () {
+  let options = {
+    width: 800,
+    height: 600,
+    show: false,
+    backgroundColor: '#00000000',
+    webPreferences: {
+      blinkFeatures: 'CustomElementsV1'
+    }
+  }
 
-app.on('window-all-closed', () => {
-	app.quit();
-});
+  if (process.platform === 'darwin') {
+    options.titleBarStyle = 'hidden'
+    options.vibrancy = 'dark'
+  } else {
+    options.autoHideMenuBar = true
+  }
+
+  let window = new BrowserWindow(options)
+
+  window.loadURL(url.format({
+    pathname: path.join(__dirname, 'index.html'),
+    protocol: 'file:',
+    slashes: true
+  }))
+
+  window.once('ready-to-show', () => {
+    window.show()
+  })
+
+  window.on('blur', () => {
+    window.webContents.send('blur')
+  })
+
+  window.on('focus', () => {
+    window.webContents.send('focus')
+  })
+
+  window.on('enter-full-screen', () => {
+    window.webContents.send('fullscreen', true)
+  })
+
+  window.on('leave-full-screen', () => {
+    window.webContents.send('fullscreen', false)
+  })
+
+  window.webContents.on('new-window', e => e.preventDefault())
+  window.webContents.on('will-navigate', e => e.preventDefault())
+
+  window.webContents.on('crashed', () => {
+    dialog.showMessageBox(window, {
+      type: 'error',
+      buttons: ['Close', 'OK'],
+      defaultId: 0,
+      title: 'Error',
+      message: 'The renderer crashed!',
+      cancelId: 1
+    }, response => {
+      if (response === 0) {
+        process.nextTick(() => {
+          window.close()
+        })
+      }
+    })
+  })
+}
 
 app.on('ready', () => {
-	mainWindow = new BrowserWindow({
-		width: 800, height: 600,
-		minWidth: 200, minHeight: 100,
-		title: 'Trace',
-		darkTheme: true,
-		titleBarStyle: 'normal',
-		backgroundColor: '#000',
-		webPreferences: {
-			experimentalFeatures: true
-		}
-	});
-	mainWindow.loadURL(`file://${__dirname}/index.html`);
-	mainWindow.on('closed', () => {
-		mainWindow = null;
-		app.quit();
-	});
-	mainWindow.on('enter-full-screen', function() {
-		mainWindow.webContents.send('fullscreen-notifier', 'true');
-	});
-	mainWindow.on('leave-full-screen', function() {
-		mainWindow.webContents.send('fullscreen-notifier', 'false');
-	});
-});
-let openEditor = function() {
-	editorWindow = new BrowserWindow({
-		width: 800, height: 600,
-		minWidth: 200, minHeight: 100,
-		title: 'Editor',
-		darkTheme: true,
-		titleBarStyle: 'normal',
-		backgroundColor: '#000',
-		webPreferences: {
-			experimentalFeatures: true
-		}
-	});
-	editorWindow.loadURL(`file://${__dirname}/editor.html`);
-	editorWindow.on('closed', () => {
-		editorWindow = null;
-	});
-};
-let closeEditor = function() {
-	if (editorWindow) editorWindow.close();
-};
-ipcMain.on('main-window', function(event, arg) {
-	if (arg == 'fullscreen')
-		mainWindow.setFullScreen(!mainWindow.isFullScreen());
-	else if (arg == 'open-editor')
-		openEditor();
-	else if (arg == 'close-editor')
-		closeEditor();
-});
+  menu.init()
+  createWindow()
+})
+
+app.on('window-all-closed', () => {
+  app.quit()
+})
