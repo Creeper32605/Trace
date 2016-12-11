@@ -33,8 +33,11 @@ class Viewport extends TraceObject {
     }
   }
 
-  draw (ctx, _, currentTime, deltaTime) {
+  draw (ctx, parentTransform, currentTime, deltaTime) {
+    let rawTransform = this.transform.getMatrix(currentTime, deltaTime)
     let transform = glMatrix.mat3.create()
+    glMatrix.mat3.multiply(transform, parentTransform, rawTransform)
+
     let size = this.getContentPos()
     let dp = this.canvasScale
     glMatrix.mat3.translate(transform, transform, [size.x * dp, size.y * dp])

@@ -1,8 +1,6 @@
 # Viewport
 Scales everything to fit a canvas.
 
-Note: `transform` has no effect on this node.
-
 ## Properties
 ### `width`, `height`
 **Default**: `960`, `540`
@@ -44,3 +42,11 @@ Returns an object:
 - `scale` Number - content scale
 
 Note that the `canvasScale` hasn't been applied.
+
+### `drawMargin(ctx, transform, currentTime, deltaTime)`
+ `ctx` CanvasRenderingContext2D
+- `transform` Matrix3
+- `currentTime` Number
+- `deltaTime` Number
+
+Clears the margins and fills it with the margin color.

@@ -19,7 +19,7 @@ An [`AnimatedNumber`](AnimatedNumber.md) instance.
 ### `enabled`
 **Default**: `true`
 
-An [`AnimatedBoolean`](AnimatedBoolean.md) instance.
+An [`AnimatedBoolean`](AnimatedBoolean.md) instance. This object will be skipped by `drawChildren` if true.
 
 ### `parentNode`
 **Default**: `null`
@@ -40,8 +40,6 @@ Child nodes of this object.
 
 Draws itself and its children.
 
-**Note**: This should be the only method that retrieves the `Transform` property.
-
 ### `drawSelf(ctx, transform, currentTime, deltaTime)`
 - `ctx` CanvasRenderingContext2D
 - `transform` Matrix3
@@ -56,4 +54,22 @@ Draws itself and its children.
 
 Sorts children by zIndex and draws them.
 
-**Note**: This should be the only method that retrieves the `zIndex` and `enabled` properties.
+### `addChild(childNode)`
+- `childNode` Object
+
+Adds a child node.
+
+### `removeChild(childNode)`
+- `childNode` Object
+
+Removes a child node, if present.
+
+### `hasChild(childNode)`
+- `childNode` Object
+
+Returns true if child node is present.
+
+### `closest(fn)`
+- `fn` Function - Should return `true` if criteria are met
+
+Returns the first parentNode (or itself) that meets the criteria, or `null`.

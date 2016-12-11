@@ -18,8 +18,7 @@ The `easing` property must be an object containing the following items:
 - `parameters` Array - Additional parameters to be passed to the function
 
 ### `interpolator`
-**Default**: `function () { return null }`
-
+**Default**: Function that returns the default value
 
 Signature: `interpolator(currentTime, keys, deltaTime, interpolatorSettings)`
 
@@ -34,3 +33,18 @@ A function used for interpolating the key values.
 
 ### `interpolatorSettings`
 Utility.
+
+## Methods
+### `getValue(currentTime, deltaTime)`
+- `currentTime` Number
+- `deltaTime` Number - set to zero to prevent affecting real-time interpolators
+
+Returns the value at the given time.
+
+## Static Methods
+### `applyInterpolator(instance, currentTime, deltaTime)`
+- `instance` AnimatedNumber
+- `currentTime` Number
+- `deltaTime` Number
+
+See above.
