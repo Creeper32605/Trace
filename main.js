@@ -20,6 +20,7 @@ let createWindow = function () {
     options.vibrancy = 'dark'
   } else {
     options.autoHideMenuBar = true
+    options.backgroundColor = '#000000'
   }
 
   let window = new BrowserWindow(options)
