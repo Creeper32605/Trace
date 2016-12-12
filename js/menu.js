@@ -6,7 +6,10 @@ const template = [
     submenu: [
       {
         label: 'Open...',
-        accelerator: 'CmdOrCtrl+O'
+        accelerator: 'CmdOrCtrl+O',
+        click (menuItem, browserWindow, event) {
+
+        }
       }
     ]
   },

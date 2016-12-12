@@ -24,8 +24,12 @@ trace-timeline.hidden {
   pointer-events: none;
   transform: translateY(100%);
 }
+trace-timeline.disabled {
+  pointer-events: none;
+  transform: translateY(100%);
+}
 
-#main-canvas {
+trace-main-canvas {
   position: fixed;
   top: 0;
   left: 0;

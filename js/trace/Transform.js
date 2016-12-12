@@ -32,9 +32,7 @@ class Transform {
     glMatrix.mat3.rotate(matrix, matrix, rotateZ)
     glMatrix.mat3.scale(matrix, matrix, [scaleX, scaleY])
 
-    let skewMatrix = glMatrix.mat3.fromValues(1, skewY, 0,
-                                              skewX, 1, 0,
-                                              0, 0, 1)
+    let skewMatrix = glMatrix.mat3.fromValues(1, skewY, 0, skewX, 1, 0, 0, 0, 1)
 
     glMatrix.mat3.multiply(matrix, matrix, skewMatrix)
 

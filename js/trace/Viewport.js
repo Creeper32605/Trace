@@ -1,5 +1,6 @@
 const glMatrix = require('gl-matrix')
 const TraceObject = require('./Object')
+const Utils = require('./Utils')
 
 class Viewport extends TraceObject {
   constructor () {
@@ -52,6 +53,7 @@ class Viewport extends TraceObject {
     ctx.globalAlpha = 1
     let dp = this.canvasScale
 
+    Utils.resetCtx(ctx)
     ctx.resetTransform()
     ctx.clearRect(0, 0, this.canvasWidth * dp, this.canvasHeight * dp)
 
@@ -71,6 +73,7 @@ class Viewport extends TraceObject {
     ctx.globalAlpha = 1
     let dp = this.canvasScale
 
+    Utils.resetCtx(ctx)
     ctx.resetTransform()
 
     let pos = this.getContentPos()

@@ -273,12 +273,19 @@ class TimelineControls extends window.HTMLElement {
       mouseDown = false
     })
   }
-  get visible () {
-    return !this.classList.contains('hidden')
+  get hidden () {
+    return this.classList.contains('hidden')
   }
-  set visible (v) {
-    if (!v) this.classList.add('hidden')
+  set hidden (v) {
+    if (v) this.classList.add('hidden')
     else this.classList.remove('hidden')
+  }
+  get disabled () {
+    return this.classList.contains('disabled')
+  }
+  set disabled (v) {
+    if (v) this.classList.add('disabled')
+    else this.classList.remove('disabled')
   }
 
   update () {
