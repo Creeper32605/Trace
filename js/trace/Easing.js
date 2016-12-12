@@ -80,6 +80,17 @@ class Easing {
       : (0.5 * (Math.sqrt(1 - (2 * t - 2) * (2 * t - 2)) + 1))
   }
 
+  // from easings.net
+  static easeInBack (t) {
+    return BezierEasing(0.6, -0.28, 0.735, 0.045)(t)
+  }
+  static easeOutBack (t) {
+    return BezierEasing(0.175, 0.885, 0.32, 1.275)(t)
+  }
+  static easeInOutBack (t) {
+    return BezierEasing(0.68, -0.55, 0.265, 1.55)(t)
+  }
+
   static step (t, start = false, count = 1) {
     return (start ? Math.ceil : Math.floor)(t * count) / count
   }
