@@ -43,7 +43,7 @@ class AnimatedNumber extends AnimatedValue {
     let target = AnimatedNumber.interpolator(currentTime, keys, defaultValue)
 
     // make sure springPosition and springVelocity exist
-    if (!interpolatorSettings.springPosition) {
+    if (!interpolatorSettings.hasOwnProperty('springPosition')) {
       // find closest key
       let closestLeft = -Infinity
       let closestRight = Infinity

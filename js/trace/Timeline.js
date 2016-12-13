@@ -71,6 +71,7 @@ class Timeline extends TraceObject {
   run () {
     if (!this.running) {
       this.running = true
+      this.lastLoopTime = Date.now()
       this.drawLoop()
       this.emit('run')
       return true

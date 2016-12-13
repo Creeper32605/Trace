@@ -154,6 +154,7 @@ loadFile = function (name, path, dontAsk) {
 }
 
 module.exports = {
+  resolve: resolve,
   load: loadFile,
   runSandboxed: runSandboxed
 }

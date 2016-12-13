@@ -1,10 +1,10 @@
 const AnimatedValue = require('./AnimatedValue')
 
-class AnimatedBoolean extends AnimatedValue {
+class AnimatedString extends AnimatedValue {
   constructor (defaultValue) {
     super(defaultValue)
 
-    this.interpolator = AnimatedBoolean.interpolator
+    this.interpolator = AnimatedString.interpolator
   }
 
   static interpolator (currentTime, keys, defaultValue) {
@@ -25,4 +25,4 @@ class AnimatedBoolean extends AnimatedValue {
     return keys.get(closestLeft)[0]
   }
 }
-module.exports = AnimatedBoolean
+module.exports = AnimatedString
