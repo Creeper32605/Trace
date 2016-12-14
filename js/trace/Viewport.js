@@ -45,7 +45,9 @@ class Viewport extends TraceObject {
     glMatrix.mat3.scale(transform, transform, [size.scale * dp, size.scale * dp])
 
     this.drawSelf(ctx, transform, currentTime, deltaTime)
+    ctx.save()
     this.drawChildren(ctx, transform, currentTime, deltaTime)
+    ctx.restore()
     this.drawMargin(ctx, transform, currentTime, deltaTime)
   }
 

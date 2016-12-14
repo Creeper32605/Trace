@@ -11,7 +11,8 @@ class Timeline extends TraceObject {
     this.paused = true
     this.duration = null
     this.loop = false
-    this.timeoutFunction = window ? f => window.requestAnimationFrame(f) : f => setTimeout(f, 16.7)
+    this.timeoutFunction = typeof window !== 'undefined' ? f => window.requestAnimationFrame(f)
+      : f => setTimeout(f, 16.7)
     this.lastLoopTime = 0
 
     this.ctx = ctx || null
@@ -50,6 +51,7 @@ class Timeline extends TraceObject {
 
     if (!this.ctx) return
     this.draw(this.ctx, identityTransform, this.currentTime, dt)
+    this.emit('loopend')
   }
 
   play () {

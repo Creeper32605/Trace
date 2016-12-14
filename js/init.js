@@ -110,6 +110,7 @@ let mainMenu = new MainMenu(mainCanvas.proxy)
         cancelId: 0,
         defaultId: 0
       })
+      window.location.reload()
       return
     }
     let instance = new (exp.Main)(mainCanvas.proxy)
@@ -166,6 +167,8 @@ let mainMenu = new MainMenu(mainCanvas.proxy)
             cancelId: 0,
             defaultId: 0
           })
+          canDrop = true
+          mainMenu.dropZone.dropState.defaultValue = 0
           return
         }
 
@@ -177,6 +180,8 @@ let mainMenu = new MainMenu(mainCanvas.proxy)
             cancelId: 0,
             defaultId: 0
           })
+          canDrop = true
+          mainMenu.dropZone.dropState.defaultValue = 0
           return
         }
 

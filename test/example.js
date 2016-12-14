@@ -116,6 +116,9 @@ class SceneBackground extends Trace.Object {
     super()
 
     this.state = new Trace.AnimatedNumber(1)
+    this.vignette = new Trace.AnimatedNumber(0)
+    this.vignetteX = new Trace.AnimatedNumber(0)
+    this.vignetteY = new Trace.AnimatedNumber(0)
     this.zIndex.defaultValue = -2
   }
   drawSelf (ctx, transform, currentTime, deltaTime) {
@@ -159,6 +162,128 @@ class SceneBackground extends Trace.Object {
     c1.5,99.5,6.1,198.9,13.8,298.1c-200.5,9.4-401,18.8-601.5,28.2c-207.9,9.7-417.1,27.4-625.2,13.3
     c-201.4-13.7-398.9-28.2-600.4-5.5c-39,4.4-81.4,16.7-120.5,15.9c-38.9-0.8-24.2-83.2-24.6-107.9c-0.7-51.8-1.5-103.6-2.2-155.4
     C10.9,136.5,23.5,70.3,0,49.7z`))
+
+    let vignette = this.vignette.getValue(currentTime, deltaTime)
+    let vignetteX = this.vignetteX.getValue(currentTime, deltaTime)
+    let vignetteY = this.vignetteY.getValue(currentTime, deltaTime)
+
+    if (vignette) {
+      Trace.Utils.setTransformMatrix(ctx, transform)
+      ctx.globalAlpha = vignette
+      let gradient = ctx.createRadialGradient(vignetteX, vignetteY, 0, vignetteX, vignetteY, 1102)
+      for (let i = 0; i < 1; i += 0.04) {
+        let v = Math.pow(i, 0.4)
+        gradient.addColorStop(i, `rgba(0,0,0,${v.toFixed(3)})`)
+      }
+      ctx.fillStyle = gradient
+      ctx.fillRect(0, 0, 1920, 1080)
+    }
+  }
+}
+
+class BasicAnimal extends Trace.Object {
+  constructor () {
+    super()
+
+    this.legFF = new Trace.AnimatedNumber(0)
+    this.legFB = new Trace.AnimatedNumber(0)
+    this.legRF = new Trace.AnimatedNumber(0)
+    this.legRB = new Trace.AnimatedNumber(0)
+    this.head = new Trace.AnimatedNumber(0)
+    this.tail = new Trace.AnimatedNumber(0)
+    this.glow = new Trace.AnimatedNumber(0)
+  }
+  drawLeg (ctx, w, h) {
+    ctx.fillText('|', 0, 0)
+    ctx.fillText('|', 0, h)
+    ctx.fillText("*", 0, 2 * h)
+  }
+  drawSelf (ctx, transform, currentTime, deltaTime) {
+    Trace.Utils.resetCtx(ctx)
+    Trace.Utils.setTransformMatrix(ctx, transform)
+
+    let opacity = this.opacity.getValue(currentTime, deltaTime)
+    let legFF = this.legFF.getValue(currentTime, deltaTime)
+    let legFB = this.legFB.getValue(currentTime, deltaTime)
+    let legRF = this.legRF.getValue(currentTime, deltaTime)
+    let legRB = this.legRB.getValue(currentTime, deltaTime)
+    let head = this.head.getValue(currentTime, deltaTime)
+    let tail = this.tail.getValue(currentTime, deltaTime)
+    let glow = this.glow.getValue(currentTime, deltaTime)
+
+    ctx.globalAlpha = opacity
+    ctx.font = '10px Fira Mono, Menlo, Monaco, Inconsolata, Consolas, Lucida Console, monospace'
+    ctx.fillStyle = '#fff'
+    ctx.textBaseline = 'middle'
+    let w = ctx.measureText('m').width
+    let h = 10
+
+    ctx.shadowBlur = 5
+    ctx.shadowColor = '#000'
+
+    ctx.fillText("  '*--''-", -4.5 * w, -h)
+    ctx.fillText('\\  _     /', -4.5 * w, 0)
+    ctx.fillText('    ``   ', -4.5 * w, h)
+
+    // head
+    ctx.translate(-4 * w, -h)
+    ctx.rotate(head)
+
+    ctx.fillText('\\      ', -4.5 * w, -3 * h)
+    ctx.fillText(' \\\\.7  ', -4.5 * w, -2 * h)
+    ctx.fillText(' /.  \\%', -4.5 * w, -h)
+    ctx.fillText('(,/\\   ', -4.5 * w, 0)
+
+    if (glow > 0.1) {
+      ctx.globalAlpha = opacity * glow
+      ctx.shadowColor = ctx.fillStyle = '#f54784'
+      ctx.shadowBlur = 10
+
+      for (let t = 0; t <= Math.PI * 2; t++) {
+        for (let r = 0; r < 3 * (glow * glow) / 5; r++) {
+          ctx.globalAlpha = opacity * Math.min(1, glow) * (3 - r)
+          let offsetX = Math.cos(t + Math.random() * glow / 5) * r * glow / 5
+          let offsetY = Math.sin(t + Math.random() * glow / 5) * r * glow / 5
+          ctx.fillText('\\', -4.5 * w + offsetX, -3 * h + offsetY)
+          ctx.fillText(' \\\\', -4.5 * w + offsetX, -2 * h + offsetY)
+        }
+      }
+
+      ctx.fillStyle = '#fff'
+      ctx.shadowBlur = 5
+      ctx.shadowColor = '#000'
+      ctx.globalAlpha = opacity
+    }
+
+    Trace.Utils.setTransformMatrix(ctx, transform)
+
+    // fb
+    ctx.translate(-4.5 * w, h)
+    ctx.rotate(legFB)
+    this.drawLeg(ctx, w, h)
+    // ff
+    Trace.Utils.setTransformMatrix(ctx, transform)
+    ctx.translate(-2.5 * w, h)
+    ctx.rotate(legFF)
+    this.drawLeg(ctx, w, h)
+    // rb
+    Trace.Utils.setTransformMatrix(ctx, transform)
+    ctx.translate(1.5 * w, h)
+    ctx.rotate(legRB)
+    this.drawLeg(ctx, w, h)
+    // rf
+    Trace.Utils.setTransformMatrix(ctx, transform)
+    ctx.translate(3.5 * w, h)
+    ctx.rotate(legRF)
+    this.drawLeg(ctx, w, h)
+
+    // tail
+    Trace.Utils.setTransformMatrix(ctx, transform)
+    ctx.translate(5.5 * w, 0)
+    ctx.rotate(tail)
+
+    ctx.fillText('\\  ', 0, 0)
+    ctx.fillText(' \\\\', 0, h)
   }
 }
 
@@ -181,7 +306,7 @@ class Main extends Trace.Timeline {
       viewport.canvasScale = canvas.scale
     })
 
-    this.duration = 10
+    this.duration = 14
 
     {
       let text = new Text('Hello world!')
@@ -300,6 +425,185 @@ class Main extends Trace.Timeline {
       background.state.addKey(5.3, 1, Trace.Easing.easeOutExpo)
       background.enabled.addKey(0, false)
       background.enabled.addKey(4.3, true)
+
+      background.vignette.addKey(8.2, 0)
+      background.vignette.addKey(8.5, 1, Trace.Easing.easeOutExpo)
+      background.vignetteX.addKey(8.7, 970)
+      background.vignetteY.addKey(8.7, 645)
+      background.vignetteX.addKey(9, 940, Trace.Easing.easeInOutCubic)
+      background.vignetteY.addKey(9, 680, Trace.Easing.easeInOutCubic)
+      background.vignetteX.addKey(9.3, 1110, Trace.Easing.easeOutQuad)
+      background.vignetteY.addKey(9.3, 540, Trace.Easing.easeOutQuad)
+      background.vignetteX.addKey(10.5, 1110)
+      background.vignetteY.addKey(10.5, 540)
+      background.vignetteX.addKey(10.8, 970, Trace.Easing.easeInQuad)
+      background.vignetteY.addKey(10.8, 645, Trace.Easing.easeInQuad)
+      background.vignette.addKey(12.4, 1)
+      background.vignette.addKey(12.7, 0, Trace.Easing.easeOutExpo)
+    }
+    {
+      let ba = new BasicAnimal()
+      viewport.addChild(ba)
+      ba.transform.translateX.addKey(5.5, 1360)
+      ba.transform.translateY.addKey(5.5, 740)
+      ba.transform.scaleX.addKey(5.5, 0)
+      ba.transform.scaleY.addKey(5.5, 0)
+      ba.transform.scaleX.addKey(6, 3, Trace.Easing.easeOutBack)
+      ba.transform.scaleY.addKey(6, 3, Trace.Easing.easeOutBack)
+
+      ba.enabled.addKey(0, false)
+      ba.enabled.addKey(5.5, true)
+
+      let sw = Math.PI / 9
+      let se = Trace.Easing.easeInOutCubic
+      ba.legFB.addKey(5.5, 0)
+      ba.legFB.addKey(6, sw, se)
+      ba.legFF.addKey(5.5, 0)
+      ba.legFF.addKey(6, -sw, se)
+      ba.legRB.addKey(5.6, 0)
+      ba.legRB.addKey(6.1, sw, se)
+      ba.legRF.addKey(5.6, 0)
+      ba.legRF.addKey(6.1, -sw, se)
+
+      ba.legFB.addKey(6.5, -sw, se)
+      ba.legFF.addKey(6.5, sw, se)
+      ba.legRB.addKey(6.6, -sw, se)
+      ba.legRF.addKey(6.6, sw, se)
+      ba.legFB.addKey(7.0, sw, se)
+      ba.legFF.addKey(7.0, -sw, se)
+      ba.legRB.addKey(7.1, sw, se)
+      ba.legRF.addKey(7.1, -sw, se)
+      ba.legFB.addKey(7.5, -sw, se)
+      ba.legFF.addKey(7.5, sw, se)
+      ba.legRB.addKey(7.6, -sw, se)
+      ba.legRF.addKey(7.6, sw, se)
+      ba.legFB.addKey(8, 0, se)
+      ba.legFF.addKey(8, 0, se)
+      ba.legRB.addKey(8.1, 0, se)
+      ba.legRF.addKey(8.1, 0, se)
+
+      let me = [Trace.Easing.cubicBezier, [.4, .3, .6, .7]]
+      ba.transform.translateX.addKey(6, 1300, ...me)
+      ba.transform.translateX.addKey(6.5, 1250, ...me)
+      ba.transform.translateX.addKey(7, 1200, ...me)
+      ba.transform.translateX.addKey(7.5, 1150, ...me)
+      ba.transform.translateX.addKey(8.1, 1100, Trace.Easing.cubicBezier, [.4, .3, .5, 1])
+
+      ba.glow.addKey(8, 0)
+      ba.glow.addKey(8.5, 5, Trace.Easing.easeInExpo)
+
+      ba.head.addKey(8.7, 0)
+      ba.head.addKey(9, -0.6, se)
+      ba.head.addKey(9.3, 0, Trace.Easing.easeOutQuad)
+
+      ba.transform.rotateZ.addKey(9, 0)
+      ba.legFB.addKey(9, 0)
+      ba.legFF.addKey(9, 0)
+      ba.legRB.addKey(9, 0)
+      ba.legRF.addKey(9, 0)
+      ba.tail.addKey(9, 0)
+      ba.transform.rotateZ.addKey(9.3, 0.7, Trace.Easing.easeOutQuad)
+      ba.legFB.addKey(9.3, 0.7, Trace.Easing.easeOutQuad)
+      ba.legFF.addKey(9.3, 0.7, Trace.Easing.easeOutQuad)
+      ba.legRB.addKey(9.3, -0.7, Trace.Easing.easeOutQuad)
+      ba.legRF.addKey(9.3, -0.7, Trace.Easing.easeOutQuad)
+      ba.tail.addKey(9.3, -0.7, Trace.Easing.easeOutQuad)
+      ba.transform.translateX.addKey(9, 1100)
+      ba.transform.translateY.addKey(9, 740)
+      ba.transform.translateX.addKey(9.3, 1140, Trace.Easing.easeOutQuad)
+      ba.transform.translateY.addKey(9.3, 700, Trace.Easing.easeOutQuad)
+      ba.legFB.addKey(9.6, 0.1, se)
+      ba.legFF.addKey(9.6, 1.2, se)
+      ba.legFB.addKey(9.9, 0.8, se)
+      ba.legFF.addKey(9.9, 0.6, se)
+      ba.legFB.addKey(10.2, 0.1, se)
+      ba.legFF.addKey(10.2, 1.2, se)
+      ba.legFB.addKey(10.5, 0.8, se)
+      ba.legFF.addKey(10.5, 0.6, se)
+      ba.transform.rotateZ.addKey(10.5, 0.7)
+      ba.transform.rotateZ.addKey(10.8, 0, Trace.Easing.easeInQuad)
+      ba.transform.translateX.addKey(10.5, 1140)
+      ba.transform.translateY.addKey(10.5, 700)
+      ba.transform.translateX.addKey(10.8, 1100, Trace.Easing.easeInQuad)
+      ba.transform.translateY.addKey(10.8, 740, Trace.Easing.easeInQuad)
+      ba.legRB.addKey(10.5, -0.7)
+      ba.legRF.addKey(10.5, -0.7)
+      ba.tail.addKey(10.5, -0.7)
+      ba.legRB.addKey(10.8, 0, Trace.Easing.easeInQuad)
+      ba.legRF.addKey(10.8, 0, Trace.Easing.easeInQuad)
+      ba.legFB.addKey(10.8, 0, Trace.Easing.easeInQuad)
+      ba.legFF.addKey(10.8, 0, Trace.Easing.easeInQuad)
+      ba.tail.addKey(10.8, 0, Trace.Easing.easeInQuad)
+
+      ba.glow.addKey(11.5, 5)
+      ba.glow.addKey(12, 15, Trace.Easing.easeInExpo)
+
+      let addBurst = (time, angle, size) => {
+        let burst = new Burst()
+        viewport.addChild(burst)
+        burst.fill.addKey(time, '')
+        burst.stroke.addKey(time, '#f54784')
+        burst.angleOffset.addKey(time, angle)
+        burst.transform.translateX.addKey(12, 970)
+        burst.transform.translateY.addKey(12, 645)
+        burst.opacity.addKey(time, 0)
+        burst.opacity.addKey(time + 0.3, 1, Trace.Easing.easeOutExpo)
+        burst.inner.addKey(time, size)
+        burst.outer.addKey(time, size)
+        burst.inner.addKey(time + 0.3, 0, Trace.Easing.easeInExpo)
+        burst.outer.addKey(time + 0.4, 10, Trace.Easing.easeInExpo)
+        burst.lineWidth.addKey(time, 1)
+        burst.lineWidth.addKey(time + 0.4, 10, Trace.Easing.easeInExpo)
+        burst.enabled.addKey(0, false)
+        burst.enabled.addKey(time, true)
+        burst.enabled.addKey(time + 0.4, false)
+        burst.enabled.addKey(12.5, false)
+      }
+      addBurst(11.9, 0, 400)
+      addBurst(12, Math.PI / 10, 300)
+      addBurst(12.1, Math.PI / 5, 200)
+      addBurst(12.2, 3 * Math.PI / 10, 100)
+      addBurst(12.3, 0, 50)
+
+      {
+        let burst = new Burst()
+        viewport.addChild(burst)
+        burst.transform.translateX.addKey(12.4, 970)
+        burst.transform.translateY.addKey(12.4, 645)
+        burst.enabled.addKey(0, false)
+        burst.enabled.addKey(12.5, true)
+        burst.enabled.addKey(13, false)
+        burst.fill.addKey(12.4, '#fff')
+        burst.blur.addKey(12.4, 10)
+        burst.inner.addKey(12.5, 10)
+        burst.outer.addKey(12.5, 20)
+        burst.inner.addKey(12.8, 0, Trace.Easing.easeOutExpo)
+        burst.outer.addKey(12.6, 500, Trace.Easing.easeOutExpo)
+        burst.lines.addKey(12.4, 9)
+        burst.opacity.addKey(12.5, 1)
+        burst.opacity.addKey(13, 0, Trace.Easing.easeOutExpo)
+      }
+      {
+        let burst = new Burst()
+        viewport.addChild(burst)
+        burst.transform.translateX.addKey(12.4, 970)
+        burst.transform.translateY.addKey(12.4, 645)
+        burst.enabled.addKey(0, false)
+        burst.enabled.addKey(12.4, true)
+        burst.enabled.addKey(12.7, false)
+        burst.fill.addKey(12.4, '')
+        burst.stroke.addKey(12.4, '#fff')
+        burst.blur.addKey(12.4, 10)
+        burst.inner.addKey(12.4, 10)
+        burst.outer.addKey(12.4, 20)
+        burst.inner.addKey(12.7, 500, Trace.Easing.easeOutExpo)
+        burst.outer.addKey(12.5, 500, Trace.Easing.easeOutExpo)
+        burst.lines.addKey(12.4, 9)
+        burst.lineWidth.addKey(12.4, 15)
+        burst.lineWidth.addKey(12.7, 0, Trace.Easing.easeInExpo)
+      }
+
+      ba.enabled.addKey(12.5, false)
     }
   }
 }
