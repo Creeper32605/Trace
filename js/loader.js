@@ -47,7 +47,10 @@ let runSandboxed = function (name, code, filename, dontAsk) {
     __dirname: dirname,
     require: function (mpath) {
       if (mpath === 'trace') {
-        return Trace
+        let inst = {}
+        for (let i in Trace) inst[i] = Trace[i]
+        inst.Path2D = window.Path2D
+        return inst
       }
 
       // don't ask about anything required by this module if it matches something that'd be found

@@ -99,6 +99,43 @@ let mainMenu = new MainMenu(mainCanvas.proxy)
       mainMenu.dropZone.wrongType.defaultValue = 0
     }
   }
+
+  let openSB = function (name, indexPath) {
+    title.setTitle(name)
+    let exp = loader.load(name, indexPath)
+    if (typeof exp.Main !== 'function') {
+      dialog.showMessageBox({
+        message: 'No Main Class',
+        buttons: ['OK'],
+        cancelId: 0,
+        defaultId: 0
+      })
+      return
+    }
+    let instance = new (exp.Main)(mainCanvas.proxy)
+    if (exp.timeline) {
+      timeline.bar.disabled = false
+      timeline.bar.hidden = false
+      timeline.bar.timeline = instance
+    }
+    if (exp.title) title.setTitle(exp.title)
+    if (exp.autorun) instance.run()
+    if (exp.autoplay) instance.play()
+
+    // terrible hack
+    ipcRenderer.once('reload', e => {
+      window.localStorage.__load = JSON.stringify([name, indexPath])
+      window.location.reload()
+    })
+  }
+
+  if (window.localStorage.__load) {
+    mainMenu.timeline.stop()
+    mainMenu = null
+    openSB(...JSON.parse(window.localStorage.__load))
+    delete window.localStorage.__load
+  }
+
   document.body.addEventListener('dragleave', stopDrag)
   document.body.addEventListener('dragend', stopDrag)
   document.body.addEventListener('drop', e => {
@@ -148,28 +185,7 @@ let mainMenu = new MainMenu(mainCanvas.proxy)
         mainMenu.timeline.once('end', () => {
           mainMenu.timeline.stop()
           mainMenu = null
-          {
-            title.setTitle(filePath.name)
-            let exp = loader.load(filePath.name, indexPath)
-            if (typeof exp.Main !== 'function') {
-              dialog.showMessageBox({
-                message: 'No Main Class',
-                buttons: ['OK'],
-                cancelId: 0,
-                defaultId: 0
-              })
-              return
-            }
-            let instance = new (exp.Main)(mainCanvas.proxy)
-            if (exp.timeline) {
-              timeline.bar.disabled = false
-              timeline.bar.hidden = false
-              timeline.bar.timeline = instance
-            }
-            if (exp.title) title.setTitle(exp.title)
-            if (exp.autorun) instance.run()
-            if (exp.autoplay) instance.play()
-          }
+          openSB(filePath.name, indexPath)
         })
       }, 100)
     }

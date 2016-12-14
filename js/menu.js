@@ -5,10 +5,10 @@ const template = [
     label: 'File',
     submenu: [
       {
-        label: 'Open...',
-        accelerator: 'CmdOrCtrl+O',
+        label: 'Reload',
+        accelerator: 'CmdOrCtrl+R',
         click (menuItem, browserWindow, event) {
-
+          if (browserWindow) browserWindow.send('reload')
         }
       }
     ]
@@ -32,7 +32,7 @@ const template = [
     submenu: [
       {
         label: 'Run/Stop',
-        accelerator: 'CmdOrCtrl+R',
+        accelerator: 'Option+CmdOrCtrl+R',
         click (menuItem, browserWindow, event) {
           if (browserWindow) browserWindow.send('runstop')
         }

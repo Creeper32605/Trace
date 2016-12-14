@@ -52,7 +52,9 @@ let createWindow = function () {
   })
 
   window.webContents.on('new-window', e => e.preventDefault())
-  window.webContents.on('will-navigate', e => e.preventDefault())
+  window.webContents.on('will-navigate', (e, url) => {
+    if (url !== window.webContents.getURL()) e.preventDefault()
+  })
 
   window.webContents.on('crashed', () => {
     dialog.showMessageBox(window, {
