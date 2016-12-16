@@ -19,7 +19,9 @@ class AnimatedNumber extends AnimatedValue {
     }
 
     // return default value if no keys are available
-    if (!Number.isFinite(closestLeft) && !Number.isFinite(closestRight)) return defaultValue
+    if (!Number.isFinite(closestLeft) && !Number.isFinite(closestRight)) {
+      return defaultValue
+    }
     // return the right key's value if there are none on the left
     if (!Number.isFinite(closestLeft)) return keys.get(closestRight)[0]
     // return the left key's value if there are none on the right
@@ -29,7 +31,8 @@ class AnimatedNumber extends AnimatedValue {
     let left = keys.get(closestLeft)
     let right = keys.get(closestRight)
     // current time within the interval from 0 to 1
-    let intervalTime = (currentTime - closestLeft) / (closestRight - closestLeft)
+    let intervalTime = (currentTime - closestLeft) / (closestRight -
+      closestLeft)
     // apply easing function or linear easing if none specified
     let easingValue = (right[1].function || Easing.linear)(intervalTime,
       ...(right[1].parameters || []))
@@ -38,7 +41,8 @@ class AnimatedNumber extends AnimatedValue {
     return (right[0] - left[0]) * easingValue + left[0]
   }
 
-  static springInterpolator (currentTime, keys, defaultValue, deltaTime, interpolatorSettings) {
+  static springInterpolator (currentTime, keys, defaultValue, deltaTime,
+      interpolatorSettings) {
     // get the interpolated value from the default interpolator
     let target = AnimatedNumber.interpolator(currentTime, keys, defaultValue)
 

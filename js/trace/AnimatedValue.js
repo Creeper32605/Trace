@@ -23,8 +23,8 @@ class AnimatedValue {
   }
 
   static applyInterpolator (instance, currentTime, deltaTime) {
-    return instance.interpolator(currentTime, instance.keys, instance.defaultValue, deltaTime,
-      instance.interpolatorSettings)
+    return instance.interpolator(currentTime, instance.keys,
+      instance.defaultValue, deltaTime, instance.interpolatorSettings)
   }
 }
 module.exports = AnimatedValue

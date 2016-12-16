@@ -19,9 +19,11 @@ class Viewport extends TraceObject {
   getContentPos () {
     let scale = 1
     if (this.contentSize === 'contain') {
-      scale = Math.min(this.canvasWidth / this.width, this.canvasHeight / this.height)
+      scale = Math.min(this.canvasWidth / this.width, this.canvasHeight /
+        this.height)
     } else if (this.contentSize === 'cover') {
-      scale = Math.max(this.canvasWidth / this.width, this.canvasHeight / this.height)
+      scale = Math.max(this.canvasWidth / this.width, this.canvasHeight /
+        this.height)
     } else return { x: 0, y: 0, scale: 0 }
 
     let x = (this.canvasWidth - (this.width * scale)) / 2
@@ -42,7 +44,8 @@ class Viewport extends TraceObject {
     let size = this.getContentPos()
     let dp = this.canvasScale
     glMatrix.mat3.translate(transform, transform, [size.x * dp, size.y * dp])
-    glMatrix.mat3.scale(transform, transform, [size.scale * dp, size.scale * dp])
+    glMatrix.mat3.scale(transform, transform,
+      [size.scale * dp, size.scale * dp])
 
     this.drawSelf(ctx, transform, currentTime, deltaTime)
     ctx.save()
@@ -85,15 +88,20 @@ class Viewport extends TraceObject {
     if (pos.x > 0) {
       ctx.clearRect(0, 0, pos.x * dp, this.canvasHeight * dp)
       if (doFill) ctx.fillRect(0, 0, pos.x * dp, this.canvasHeight * dp)
-      ctx.clearRect((this.canvasWidth - pos.x) * dp, 0, pos.x * dp, this.canvasHeight * dp)
+      ctx.clearRect((this.canvasWidth - pos.x) * dp, 0, pos.x * dp,
+        this.canvasHeight * dp)
       if (doFill) {
         ctx.fillRect((this.canvasWidth - pos.x) * dp, 0, pos.x * dp,
           this.canvasHeight * dp)
       }
     }
     if (pos.y > 0) {
-      ctx.clearRect(pos.x * dp, 0, (this.canvasWidth - 2 * pos.x) * dp, pos.y * dp)
-      if (doFill) ctx.fillRect(pos.x * dp, 0, (this.canvasWidth - 2 * pos.x) * dp, pos.y * dp)
+      ctx.clearRect(pos.x * dp, 0, (this.canvasWidth - 2 * pos.x) * dp,
+        pos.y * dp)
+      if (doFill) {
+        ctx.fillRect(pos.x * dp, 0, (this.canvasWidth - 2 * pos.x) *
+          dp, pos.y * dp)
+      }
       ctx.clearRect(pos.x * dp, (this.canvasHeight - pos.y) * dp,
         (this.canvasWidth - 2 * pos.x) * dp, pos.y * dp)
       if (doFill) {

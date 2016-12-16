@@ -11,7 +11,8 @@ class Timeline extends TraceObject {
     this.paused = true
     this.duration = null
     this.loop = false
-    this.timeoutFunction = typeof window !== 'undefined' ? f => window.requestAnimationFrame(f)
+    this.timeoutFunction = typeof window !== 'undefined'
+      ? f => window.requestAnimationFrame(f)
       : f => setTimeout(f, 16.7)
     this.lastLoopTime = 0
 

@@ -222,10 +222,13 @@ class TimelineControls extends window.HTMLElement {
     let getNodesFromPoint = function (x, y, dontActuallyCheck) {
       let nodes = []
       for (let node of this.drawTimeline.children.values()) {
-        let translateX = node.transform.translateX.getValue(this.drawTimeline.currentTime, 0)
-        let translateY = node.transform.translateY.getValue(this.drawTimeline.currentTime, 0)
+        let translateX = node.transform.translateX.getValue(this.drawTimeline
+          .currentTime, 0)
+        let translateY = node.transform.translateY.getValue(this.drawTimeline
+          .currentTime, 0)
         if ((translateX <= x && x < translateX + node.width &&
-          translateY <= y && y < translateY + node.height) || dontActuallyCheck) {
+          translateY <= y && y < translateY + node.height) ||
+            dontActuallyCheck) {
           let offsetX = x - translateX
           let offsetY = y - translateY
           nodes.push([node, offsetX, offsetY])
@@ -249,7 +252,9 @@ class TimelineControls extends window.HTMLElement {
       let offsetX = e.pageX - rect.left
       let offsetY = e.pageY - rect.top
       for (let node of getNodesFromPoint(offsetX, offsetY)) {
-        if (node[0].mousedown) node[0].mousedown(this.timeline, node[1], node[2])
+        if (node[0].mousedown) {
+          node[0].mousedown(this.timeline, node[1], node[2])
+        }
       }
       mouseDown = true
     })
@@ -259,7 +264,9 @@ class TimelineControls extends window.HTMLElement {
       let offsetX = e.pageX - rect.left
       let offsetY = e.pageY - rect.top
       for (let node of getNodesFromPoint(offsetX, offsetY, true)) {
-        if (node[0].mousemove) node[0].mousemove(this.timeline, node[1], node[2])
+        if (node[0].mousemove) {
+          node[0].mousemove(this.timeline, node[1], node[2])
+        }
       }
     })
     window.addEventListener('mouseup', e => {

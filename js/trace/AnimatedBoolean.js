@@ -18,7 +18,9 @@ class AnimatedBoolean extends AnimatedValue {
     }
 
     // return default value if no keys are available
-    if (!Number.isFinite(closestLeft) && !Number.isFinite(closestRight)) return defaultValue
+    if (!Number.isFinite(closestLeft) && !Number.isFinite(closestRight)) {
+      return defaultValue
+    }
     // return the right key's value if there are none on the left
     if (!Number.isFinite(closestLeft)) return keys.get(closestRight)[0]
     // return the left key's value

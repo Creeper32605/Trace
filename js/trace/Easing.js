@@ -66,7 +66,8 @@ class Easing {
     return 1 - Math.pow(2, -10 * t)
   }
   static easeInOutExpo (t) {
-    return t < 0.5 ? (Math.pow(2, 10 * (2 * t - 1)) / 2) : (1 - Math.pow(2, -10 * (2 * t - 1)) / 2)
+    return t < 0.5 ? (Math.pow(2, 10 * (2 * t - 1)) / 2) : (1 - Math.pow(2,
+      -10 * (2 * t - 1)) / 2)
   }
 
   static easeInCirc (t) {

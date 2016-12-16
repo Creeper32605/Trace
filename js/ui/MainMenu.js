@@ -25,7 +25,8 @@ class TraceTitle extends Trace.Object {
     let width = (60 * state) + skew
     let height = 25
 
-    let rainbow = ['#f54784', '#ed9b50', '#4ebc6b', '#43c5e5', '#637bc5', '#8c63d9']
+    let rainbow = ['#f54784', '#ed9b50', '#4ebc6b', '#43c5e5', '#637bc5',
+      '#8c63d9']
     for (let i = rainbow.length - 1; i >= 0; i--) {
       ctx.fillStyle = rainbow[i]
       ctx.beginPath()
@@ -50,7 +51,8 @@ class TraceTitle extends Trace.Object {
     ctx.fillStyle = '#fff'
     ctx.textAlign = 'center'
     ctx.textBaseline = 'middle'
-    ctx.font = '18px Avenir Next, Avenir, BlinkMacSystemFont, Helvetica, Roboto, Segoe UI, Arial, sans-serif'
+    ctx.font = '18px Avenir Next, Avenir, BlinkMacSystemFont, Helvetica, ' +
+      'Roboto, Segoe UI, Arial, sans-serif'
     ctx.fillText('Trace', 0, 0)
 
     ctx.restore()
@@ -84,7 +86,8 @@ class DropZone extends Trace.Object {
     let tooManyFiles = this.tooManyFiles.getValue(currentTime, deltaTime)
     let wrongType = this.wrongType.getValue(currentTime, deltaTime)
 
-    let file = new window.Path2D('M -20,-28 v 56 h 40 v -46 l -10,-10 z M 10,-28 v 10 h 10')
+    let file = new window.Path2D('M -20,-28 v 56 h 40 v -46 l -10,-10 z M ' +
+      '10,-28 v 10 h 10')
 
     ctx.globalAlpha = opacity
     ctx.lineWidth = 1
@@ -102,8 +105,10 @@ class DropZone extends Trace.Object {
     ctx.save()
     ctx.clip(file)
 
-    let fileData = [[0, 5], [0, 8], [1, 3], [1, 9], [2, 5], [3, 8], [3, 3], [2, 6], [2, 3], [3, 10]]
-    let rainbow = ['#f54784', '#ed9b50', '#4ebc6b', '#43c5e5', '#637bc5', '#8c63d9']
+    let fileData = [[0, 5], [0, 8], [1, 3], [1, 9], [2, 5], [3, 8], [3, 3],
+      [2, 6], [2, 3], [3, 10]]
+    let rainbow = ['#f54784', '#ed9b50', '#4ebc6b', '#43c5e5', '#637bc5',
+      '#8c63d9']
     let visibleData = dropState * 10
     let highlightData = Math.max(0, dropState - 1) * 10
     ctx.globalAlpha *= Math.max(0, 1 - tooManyFiles - wrongType)
@@ -119,7 +124,8 @@ class DropZone extends Trace.Object {
       ctx.lineTo(right, y)
       ctx.stroke()
       if (i < highlightData - 0.5) {
-        let rightHighlight = left + (fileData[i][1] * 2) * Math.min(1, (highlightData - i))
+        let rightHighlight = left + (fileData[i][1] * 2) * Math.min(1,
+          (highlightData - i))
         ctx.strokeStyle = rainbow[i % rainbow.length]
         ctx.beginPath()
         ctx.moveTo(left, y)
@@ -130,14 +136,15 @@ class DropZone extends Trace.Object {
 
     ctx.restore()
 
-    if (this.tooManyFiles.defaultValue || this.wrongType.defaultValue || tooManyFiles > 0.1 ||
-        wrongType > 0.1) {
+    if (this.tooManyFiles.defaultValue || this.wrongType.defaultValue ||
+        tooManyFiles > 0.1 || wrongType > 0.1) {
       ctx.globalAlpha = opacity * (tooManyFiles + wrongType)
       ctx.strokeStyle = '#f44336'
       ctx.fillStyle = '#f44336'
       ctx.textAlign = 'center'
       ctx.textBaseline = 'middle'
-      ctx.font = '700 7px Avenir Next, Avenir, BlinkMacSystemFont, Helvetica, Roboto, Segoe UI, Arial, sans-serif'
+      ctx.font = '700 7px Avenir Next, Avenir, BlinkMacSystemFont, ' +
+        'Helvetica, Roboto, Segoe UI, Arial, sans-serif'
       ctx.stroke(file)
 
       if (tooManyFiles) {
@@ -158,7 +165,8 @@ class DropZone extends Trace.Object {
         ctx.globalAlpha = opacity * wrongType
         ctx.save()
         ctx.translate(0, -5)
-        ctx.stroke(new window.Path2D('M 0,-10 l 12,20 h -24 l 12,-20 M 0,-5 v 10 M 0,7 v 1'))
+        ctx.stroke(new window.Path2D('M 0,-10 l 12,20 h -24 l 12,-20 M 0,-5 ' +
+          'v 10 M 0,7 v 1'))
         ctx.fillText('TYPE', 0, 20)
         ctx.restore()
       }

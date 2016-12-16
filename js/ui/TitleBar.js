@@ -24,7 +24,8 @@ class TitleText extends Trace.Object {
       ctx.fillStyle = '#fff'
       ctx.textAlign = 'center'
       ctx.textBaseline = 'middle'
-      ctx.font = '13px Avenir Next, Avenir, BlinkMacSystemFont, Helvetica, Roboto, Segoe UI, Arial, sans-serif'
+      ctx.font = '13px Avenir Next, Avenir, BlinkMacSystemFont, Helvetica, ' +
+        'Roboto, Segoe UI, Arial, sans-serif'
       let textWidth = ctx.measureText(this.text).width
       let rectWidth = textWidth * visibility
       ctx.fillRect(-rectWidth / 2, -12, rectWidth, 24)

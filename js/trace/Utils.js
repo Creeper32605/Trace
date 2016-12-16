@@ -4,7 +4,8 @@ class Utils {
   }
 
   static setTransformMatrix (ctx, matrix) {
-    ctx.setTransform(matrix[0], matrix[1], matrix[3], matrix[4], matrix[6], matrix[7])
+    ctx.setTransform(matrix[0], matrix[1], matrix[3], matrix[4], matrix[6],
+      matrix[7])
   }
 
   static resetCtx (ctx) {

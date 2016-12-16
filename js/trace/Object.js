@@ -49,7 +49,8 @@ class TraceObject extends EventEmitter {
     Utils.setTransformMatrix(ctx, transform)
     ctx.fillStyle = '#fff'
     ctx.strokeStyle = '#637bc5'
-    ctx.font = '10px Fira Mono, Menlo, Monaco, Inconsolata, Consolas, Lucida Console, monospace'
+    ctx.font = '10px Fira Mono, Menlo, Monaco, Inconsolata, Consolas, ' +
+      'Lucida Console, monospace'
     ctx.textAlign = 'center'
     ctx.textBaseline = 'middle'
     ctx.globalAlpha = this.opacity.getValue(currentTime, deltaTime)
