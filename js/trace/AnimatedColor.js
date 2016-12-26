@@ -23,17 +23,17 @@ class AnimatedColor extends AnimatedValue {
     let right = keys.get(closestRight)
 
     // parse colors with failsafe
-    let leftColor = color(left) || color([0, 0, 0, 0])
-    let rightColor = color(right) || color([0, 0, 0, 0])
+    let leftColor = left ? (color(left[0]) || color([0, 0, 0, 0])) : null
+    let rightColor = right ? (color(right[0]) || color([0, 0, 0, 0])) : null
 
     // return default value if no keys are available
     if (!Number.isFinite(closestLeft) && !Number.isFinite(closestRight)) {
       return defaultValue
     }
     // return the right key's value if there are none on the left
-    if (!Number.isFinite(closestLeft)) return leftColor.toRgbString()
+    if (!Number.isFinite(closestLeft)) return rightColor.toRgbString()
     // return the left key's value if there are none on the right
-    if (!Number.isFinite(closestRight)) return rightColor.toRgbString()
+    if (!Number.isFinite(closestRight)) return leftColor.toRgbString()
 
     // interpolate value
     let leftArray = leftColor.toRgbaArray()
@@ -46,7 +46,7 @@ class AnimatedColor extends AnimatedValue {
 
     let result = [0, 0, 0, 0]
     for (let i in result) {
-      result[i] = (rightArray[0] - leftArray[0]) * easingValue + leftArray[0]
+      result[i] = (rightArray[i] - leftArray[i]) * easingValue + leftArray[i]
     }
 
     return color(result).toRgbString()
