@@ -18,7 +18,7 @@ let title = {
   },
   setBarTitle: function (s) {}
 }
-if (process.platform === 'darwin') {
+{
   let bar = new TitleBar()
   document.body.appendChild(bar)
 
