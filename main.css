@@ -22,6 +22,7 @@ trace-title-bar .window-controls .window-control {
   right: 0;
   width: 42px;
   height: 23px;
+  -webkit-app-region: no-drag;
 }
 trace-title-bar .window-controls .window-control:nth-of-type(2) {
   right: 42px;
