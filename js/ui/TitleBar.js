@@ -163,7 +163,7 @@ class TitleBar extends UIComponent {
   constructor () {
     super()
 
-    this.titleText = new TitleText('Hello World')
+    this.titleText = new TitleText('Trace')
     this.titleText.transform.translateX.defaultValue = 400
     this.titleText.transform.translateY.defaultValue = 0
     this.timeline.addChild(this.titleText)
@@ -177,6 +177,9 @@ class TitleBar extends UIComponent {
     this.windowControls.sizes[1].addKey(0.9, 5, Trace.Easing.easeOutExpo)
     this.windowControls.sizes[2].addKey(1.0, 5, Trace.Easing.easeOutExpo)
     this.timeline.addChild(this.windowControls)
+    if (process.platform === 'darwin') {
+      this.windowControls.enabled.defaultValue = false
+    }
 
     this.addEventListener('update', () => {
       this.titleText.transform.translateX.defaultValue = this.width / 2
