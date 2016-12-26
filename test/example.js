@@ -196,7 +196,7 @@ class BasicAnimal extends Trace.Object {
   drawLeg (ctx, w, h) {
     ctx.fillText('|', 0, 0)
     ctx.fillText('|', 0, h)
-    ctx.fillText("*", 0, 2 * h)
+    ctx.fillText('*', 0, 2 * h)
   }
   drawSelf (ctx, transform, currentTime, deltaTime) {
     Trace.Utils.resetCtx(ctx)
@@ -482,12 +482,12 @@ class Main extends Trace.Timeline {
       ba.legRB.addKey(8.1, 0, se)
       ba.legRF.addKey(8.1, 0, se)
 
-      let me = [Trace.Easing.cubicBezier, [.4, .3, .6, .7]]
+      let me = [Trace.Easing.cubicBezier, [0.4, 0.3, 0.6, 0.7]]
       ba.transform.translateX.addKey(6, 1300, ...me)
       ba.transform.translateX.addKey(6.5, 1250, ...me)
       ba.transform.translateX.addKey(7, 1200, ...me)
       ba.transform.translateX.addKey(7.5, 1150, ...me)
-      ba.transform.translateX.addKey(8.1, 1100, Trace.Easing.cubicBezier, [.4, .3, .5, 1])
+      ba.transform.translateX.addKey(8.1, 1100, Trace.Easing.cubicBezier, [0.4, 0.3, 0.5, 1])
 
       ba.glow.addKey(8, 0)
       ba.glow.addKey(8.5, 5, Trace.Easing.easeInExpo)

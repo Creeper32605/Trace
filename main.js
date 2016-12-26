@@ -1,4 +1,4 @@
-const {app, BrowserWindow, dialog} = require('electron')
+const {app, BrowserWindow, dialog, ipcMain} = require('electron')
 const path = require('path')
 const url = require('url')
 
@@ -19,6 +19,7 @@ let createWindow = function () {
     options.titleBarStyle = 'hidden'
     options.vibrancy = 'dark'
   } else {
+    options.frame = false
     options.autoHideMenuBar = true
     options.backgroundColor = '#000000'
   }
@@ -81,4 +82,23 @@ app.on('ready', () => {
 
 app.on('window-all-closed', () => {
   app.quit()
+})
+
+ipcMain.on('window-close', e => {
+  BrowserWindow.fromWebContents(e.sender).close()
+})
+ipcMain.on('window-zoom', e => {
+  let window = BrowserWindow.fromWebContents(e.sender)
+  if (window.isMaximized()) window.unmaximize()
+  else window.maximize()
+})
+ipcMain.on('window-fullscreen', e => {
+  let window = BrowserWindow.fromWebContents(e.sender)
+  if (window.isFullScreen()) window.setFullScreen(false)
+  else window.setFullScreen(true)
+})
+ipcMain.on('window-minimize', e => {
+  let window = BrowserWindow.fromWebContents(e.sender)
+  if (window.isMinimized()) window.restore()
+  else window.minimize()
 })

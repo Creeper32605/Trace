@@ -7,8 +7,30 @@ trace-title-bar {
   z-index: 1;
   -webkit-app-region: drag;
 }
-trace-title-bar.hidden {
+trace-title-bar:not(.controls-enabled).hidden {
   pointer-events: none;
+}
+trace-title-bar .window-controls {
+  position: absolute;
+  top: 0;
+  right: 0;
+  z-index: 1;
+}
+trace-title-bar .window-controls .window-control {
+  position: absolute;
+  top: 0;
+  right: 0;
+  width: 42px;
+  height: 23px;
+}
+trace-title-bar .window-controls .window-control:nth-of-type(2) {
+  right: 42px;
+}
+trace-title-bar .window-controls .window-control:nth-of-type(3) {
+  right: 84px;
+}
+trace-title-bar:not(.controls-enabled) .window-controls {
+  display: none;
 }
 
 trace-timeline {

@@ -1,5 +1,6 @@
 module.exports = {
   AnimatedBoolean: require('./AnimatedBoolean'),
+  AnimatedColor: require('./AnimatedColor'),
   AnimatedNumber: require('./AnimatedNumber'),
   AnimatedString: require('./AnimatedString'),
   AnimatedValue: require('./AnimatedValue'),

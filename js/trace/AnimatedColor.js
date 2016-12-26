@@ -1,5 +1,5 @@
 const color = require('css-color-converter')
-const AnimatedValue = require('./AniamtedValue')
+const AnimatedValue = require('./AnimatedValue')
 const Easing = require('./Easing')
 
 class AnimatedColor extends AnimatedValue {

@@ -16,6 +16,10 @@ class TraceObject extends EventEmitter {
     this.enabled = new AnimatedBoolean(true)
     this.zIndex = new AnimatedNumber(0)
     this.children = new Set()
+
+    this.on('connected', () => {
+      for (let i of this.children.values()) i.emit('connected')
+    })
   }
 
   drawChildren (ctx, transform, currentTime, deltaTime) {
@@ -72,11 +76,12 @@ class TraceObject extends EventEmitter {
     if (childNode.parentNode !== null && childNode.parentNode !== this) {
       throw new Error('Child node already has a parent')
     }
-    if (!(childNode instanceof TraceObject)) {
+    /* if (!(childNode instanceof TraceObject)) {
       throw new Error('Child node is not a Trace Object')
-    }
+    } */
     this.children.add(childNode)
     childNode.parentNode = this
+    childNode.emit('connected')
   }
   removeChild (childNode) {
     return this.children.delete(childNode)
