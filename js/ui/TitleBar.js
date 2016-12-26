@@ -190,7 +190,7 @@ class TitleBar extends UIComponent {
       if (this.timeline.currentTime % 1 === 0) this.timeline.stop()
     }.bind(this)
     this.addEventListener('append', () => {
-      if (process.platform !== 'darwin' || true) this.classList.add('controls-enabled')
+      if (process.platform !== 'darwin') this.classList.add('controls-enabled')
       let controls = document.createElement('div')
       controls.classList.add('window-controls')
       for (let i = 0; i < 3; i++) {
