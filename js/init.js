@@ -100,9 +100,9 @@ let mainMenu = new MainMenu(mainCanvas.proxy)
     }
   }
 
-  let openSB = function (name, indexPath) {
+  let openSB = function (name, indexPath, dontAsk = false) {
     title.setTitle(name)
-    let exp = loader.load(name, indexPath)
+    let exp = loader.load(name, indexPath, dontAsk)
     if (typeof exp.Main !== 'function') {
       dialog.showMessageBox({
         message: 'No Main Class',
@@ -125,7 +125,7 @@ let mainMenu = new MainMenu(mainCanvas.proxy)
 
     // terrible hack
     ipcRenderer.once('reload', e => {
-      window.localStorage.__load = JSON.stringify([name, indexPath])
+      window.localStorage.__load = JSON.stringify([name, indexPath, dontAsk])
       window.location.reload()
     })
   }
@@ -136,6 +136,14 @@ let mainMenu = new MainMenu(mainCanvas.proxy)
     openSB(...JSON.parse(window.localStorage.__load))
     delete window.localStorage.__load
   }
+
+  let optIsDown = false
+  window.addEventListener('keydown', e => {
+    if (e.which === 18) optIsDown = true
+  })
+  window.addEventListener('keyup', e => {
+    if (e.which === 18) optIsDown = false
+  })
 
   document.body.addEventListener('dragleave', stopDrag)
   document.body.addEventListener('dragend', stopDrag)
@@ -190,7 +198,7 @@ let mainMenu = new MainMenu(mainCanvas.proxy)
         mainMenu.timeline.once('end', () => {
           mainMenu.timeline.stop()
           mainMenu = null
-          openSB(filePath.name, indexPath)
+          openSB(filePath.name, indexPath, optIsDown)
         })
       }, 100)
     }
