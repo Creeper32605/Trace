@@ -50,6 +50,30 @@ ipcRenderer.on('runstop', () => {
   if (timeline.bar.timeline.running) timeline.bar.timeline.stop()
   else timeline.bar.timeline.run()
 })
+ipcRenderer.on('prevstop', () => {
+  let prevMarker = -Infinity
+  for (const marker of timeline.bar.timeline.markers.entries()) {
+    if (marker[0] > prevMarker &&
+        marker[0] < timeline.bar.timeline.currentTime) {
+      prevMarker = marker[0]
+    }
+  }
+  if (Number.isFinite(prevMarker)) {
+    timeline.bar.timeline.currentTime = prevMarker
+  }
+})
+ipcRenderer.on('nextstop', () => {
+  let nextMarker = Infinity
+  for (const marker of timeline.bar.timeline.markers.entries()) {
+    if (marker[0] < nextMarker &&
+        marker[0] > timeline.bar.timeline.currentTime) {
+      nextMarker = marker[0]
+    }
+  }
+  if (Number.isFinite(nextMarker)) {
+    timeline.bar.timeline.currentTime = nextMarker
+  }
+})
 {
   let timeout = -1
   window.addEventListener('mousemove', e => {
