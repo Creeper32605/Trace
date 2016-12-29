@@ -132,6 +132,8 @@ class SeekBar extends Trace.Object {
     this.width = 0
     this.height = 32
 
+    this.markers = new Map()
+
     this.mouseDown = false
   }
 
@@ -149,12 +151,36 @@ class SeekBar extends Trace.Object {
     ctx.beginPath()
     ctx.moveTo(1, 16)
     ctx.lineTo(this.width - 1, 16)
+
+    // current time position
+    const cpos = this.width * (time / duration)
+    if (duration > 0) {
+      // draw markers
+      for (const marker of this.markers.entries()) {
+        const pos = this.width * (marker[0] / duration)
+        const distance = Math.abs(cpos - pos) // distance from current time
+        const type = marker[1]
+
+        if (type === 0) {
+          // draw line that moves further down the closer the current time is
+
+          // displacement amount
+          const factor = Math.pow(2, -(distance * distance) / 8)
+
+          const top = 12 + factor * 14
+          const bottom = 20 + factor * 7
+
+          ctx.moveTo(pos, top)
+          ctx.lineTo(pos, bottom)
+        }
+      }
+    }
+
     ctx.stroke()
 
     if (duration > 0) {
       ctx.globalAlpha = 1
-      let cpos = this.width * (time / duration)
-      ctx.clearRect(cpos - 2, 0, 4, 32)
+      ctx.clearRect(cpos - 2, 10, 4, 12)
       ctx.beginPath()
       ctx.moveTo(cpos, 10)
       ctx.lineTo(cpos, 22)
@@ -217,6 +243,7 @@ class TimelineControls extends window.HTMLElement {
       this.runStop.state.defaultValue = +!this.timeline.running
       this.seekBar.currentTime.defaultValue = this.timeline.currentTime
       this.seekBar.duration.defaultValue = this.timeline.duration
+      this.seekBar.markers = this.timeline.markers
     })
 
     let getNodesFromPoint = function (x, y, dontActuallyCheck) {
