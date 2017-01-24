@@ -5,9 +5,14 @@ const resolve = require('resolve')
 const path = require('path')
 const vm = require('vm')
 const fs = require('fs')
-const Trace = require('./trace')
+const Trace = require('../trace-api')
 // const deasync = require('deasync')
 // let {dialog} = require('electron').remote
+
+let natives = []
+for (let i in process.binding('natives')) {
+  if (!i.match(/^(_|internal)|\//)) natives.push(i)
+}
 
 let globals = {}
 
@@ -50,8 +55,20 @@ let runSandboxed = function (name, code, filename, dontAsk) {
         let inst = {}
         for (let i in Trace) inst[i] = Trace[i]
         inst.Path2D = window.Path2D
+        inst.loadCSS = function (cpath) {
+          const stylepath = path.resolve(dirname, cpath)
+          const link = document.createElement('link')
+          link.rel = 'stylesheet'
+          link.href = stylepath
+          document.body.appendChild(link)
+        }
+        inst.createImage = function () {
+          return document.createElement('img')
+        }
         return inst
       }
+
+      if (natives.includes(mpath)) return require(mpath)
 
       // don't ask about anything required by this module if it matches something that'd be found
       // in node_modules
@@ -124,8 +141,14 @@ let runSandboxed = function (name, code, filename, dontAsk) {
     clearTimeout: clearTimeout,
     clearInterval: clearInterval,
     clearImmediate: clearImmediate,
-    Buffer: Buffer
+    Buffer: Buffer,
+    window: {
+      addEventListener (...args) { return window.addEventListener(...args) },
+      removeEventListener (...args) { return window.removeEventListener(...args) }
+    },
+    localStorage: localStorage
   }
+  data.global = Object.assign(data, globals[name])
   data.require.main = undefined
   data.require.resolve = nresolve
   data.require.extensions = {}

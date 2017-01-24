@@ -1,3 +1,0 @@
-# Trace Documentation
-
-- [API](api)

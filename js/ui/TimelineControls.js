@@ -1,4 +1,4 @@
-const Trace = require('../trace')
+const Trace = require('../../trace-api')
 
 class ToggleButton extends Trace.Object {
   constructor () {
