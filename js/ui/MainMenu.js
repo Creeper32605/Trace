@@ -202,34 +202,52 @@ class MainMenu extends Trace.Object {
     {
       let title = new TraceTitle()
       this.viewport.addChild(title)
-      title.state.addKey(0, 0)
-      title.state.addKey(2, 1, Trace.Easing.easeOutExpo)
-      title.zIndex.defaultValue = 1
-      title.transform.scaleX.defaultValue = 2
-      title.transform.scaleY.defaultValue = 2
-      title.transform.translateX.defaultValue = 250
-      title.transform.translateY.addKey(0.5, 250)
-      title.transform.translateY.addKey(3, 150, Trace.Easing.easeInOutExpo)
-      title.transform.translateY.addKey(4, 50, Trace.Easing.easeInExpo)
-      title.state.addKey(3, 1)
-      title.state.addKey(4, 0, Trace.Easing.easeInExpo)
+      title.addKeys({
+        state: {
+          0: 0,
+          2: [1, Trace.Easing.easeOutExpo],
+          3: Trace.AnimatedValue.PREV_KEY,
+          4: [0, Trace.Easing.easeInExpo]
+        },
+        zIndex: 1,
+        transform: {
+          scaleX: 2,
+          scaleY: 2,
+          translateX: 250,
+          translateY: {
+            0.5: 250,
+            3: [150, Trace.Easing.easeInOutExpo],
+            4: [50, Trace.Easing.easeInExpo]
+          }
+        }
+      })
     }
 
     {
       let zone = new DropZone()
       this.dropZone = zone
       this.viewport.addChild(zone)
-      zone.transform.translateX.defaultValue = 250
-      zone.transform.translateY.defaultValue = 300
-      zone.transform.scaleX.addKey(2, 0)
-      zone.transform.scaleY.addKey(2, 0)
-      zone.opacity.addKey(2, 0)
-      zone.transform.scaleX.addKey(3, 2, Trace.Easing.easeOutExpo)
-      zone.transform.scaleY.addKey(3, 2, Trace.Easing.easeOutExpo)
-      zone.opacity.addKey(3, 1, Trace.Easing.easeOutExpo)
-      zone.transform.scaleX.addKey(4, 6, Trace.Easing.easeInExpo)
-      zone.transform.scaleY.addKey(4, 6, Trace.Easing.easeInExpo)
-      zone.opacity.addKey(4, 0, Trace.Easing.easeInExpo)
+      zone.addKeys({
+        transform: {
+          translateX: 250,
+          translateY: 300,
+          scaleX: {
+            2: 0,
+            3: [2, Trace.Easing.easeOutExpo],
+            4: [6, Trace.Easing.easeInExpo]
+          },
+          scaleY: {
+            2: 0,
+            3: [2, Trace.Easing.easeOutExpo],
+            4: [6, Trace.Easing.easeInExpo]
+          }
+        },
+        opacity: {
+          2: 0,
+          3: [1, Trace.Easing.easeOutExpo],
+          4: [0, Trace.Easing.easeInExpo]
+        }
+      })
     }
 
     this.timeline.run()
