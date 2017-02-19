@@ -2,7 +2,7 @@
   "name": "trace-app",
   "private": true,
   "productName": "Trace",
-  "version": "0.4.0",
+  "version": "0.5.0",
   "description": "Canvas Animation Engine",
   "main": "main.js",
   "scripts": {
@@ -24,9 +24,11 @@
     "gl-matrix": "^2.3.2",
     "resolve": "^1.1.7",
     "stable": "^0.1.5",
-    "svg-parser": "^1.0.5"
+    "svg-parser": "^1.0.5",
+    "trace-api": "^0.1.1"
   },
   "devDependencies": {
-    "electron": "^1.4.13"
+    "electron": "^1.4.13",
+    "standard": "^8.6.0"
   }
 }

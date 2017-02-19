@@ -1,230 +1,154 @@
-const {ipcRenderer} = require('electron')
-const {dialog} = require('electron').remote
+const { ipcRenderer: ipc, remote: { dialog } } = require('electron')
 const path = require('path')
-const TitleBar = require('./js/ui/TitleBar')
-const TimelineControls = require('./js/ui/TimelineControls')
-const MainCanvas = require('./js/ui/MainCanvas')
-const MainMenu = require('./js/ui/MainMenu')
-const loader = require('./js/loader')
 
-// todo: clean up
+const MainCanvas = require('./ui/main-canvas')
+const MainMenu = require('./ui/main-menu')
+const TitleBar = require('./ui/title-bar')
+const TimelineControls = require('./ui/timeline-controls')
 
-let title = {
-  text: 'Trace',
-  setTitle: function (s) {
-    document.head.querySelector('title').textContent = s
-    title.text = s
-    title.setBarTitle(s)
-  },
-  setBarTitle: function (s) {}
-}
 {
-  let bar = new TitleBar()
-  document.body.appendChild(bar)
-
-  title.bar = bar
-  title.setBarTitle = function (s) {
-    bar.titleText.text = s
-  }
-
-  window.addEventListener('resize', () => bar.update())
-
-  ipcRenderer.on('fullscreen', (e, isFullscreen) => {
-    if (isFullscreen) bar.classList.add('hidden')
-    else bar.classList.remove('hidden')
+  let titleBar = new TitleBar()
+  document.body.appendChild(titleBar)
+  titleBar.addEventListener('titleupdate', () => {
+    document.head.querySelector('title').textContent = titleBar.title
   })
-}
+  window.addEventListener('resize', () => titleBar.update())
 
-let timeline = {}
-timeline.bar = new TimelineControls()
-timeline.bar.hidden = true
-timeline.bar.disabled = true
-document.body.appendChild(timeline.bar)
-window.addEventListener('resize', () => timeline.bar.update())
+  ipc.on('fullscreen', (e, isFullscreen) => {
+    if (isFullscreen) titleBar.classList.add('hidden')
+    else titleBar.classList.remove('hidden')
+  })
 
-ipcRenderer.on('playpause', () => {
-  if (timeline.bar.timeline.paused) timeline.bar.timeline.play()
-  else timeline.bar.timeline.pause()
-})
-ipcRenderer.on('runstop', () => {
-  if (timeline.bar.timeline.running) timeline.bar.timeline.stop()
-  else timeline.bar.timeline.run()
-})
-ipcRenderer.on('prevstop', () => {
-  let prevMarker = -Infinity
-  for (const marker of timeline.bar.timeline.markers.entries()) {
-    if (marker[0] > prevMarker &&
-        marker[0] < timeline.bar.timeline.currentTime) {
-      prevMarker = marker[0]
-    }
-  }
-  if (Number.isFinite(prevMarker)) {
-    timeline.bar.timeline.currentTime = prevMarker
-  }
-})
-ipcRenderer.on('nextstop', () => {
-  let nextMarker = Infinity
-  for (const marker of timeline.bar.timeline.markers.entries()) {
-    if (marker[0] < nextMarker &&
-        marker[0] > timeline.bar.timeline.currentTime) {
-      nextMarker = marker[0]
-    }
-  }
-  if (Number.isFinite(nextMarker)) {
-    timeline.bar.timeline.currentTime = nextMarker
-  }
-})
-{
-  let timeout = -1
+  let timelineControls = new TimelineControls()
+  timelineControls.hidden = true
+  timelineControls.disabled = true
+  document.body.appendChild(timelineControls)
+
+  window.addEventListener('resize', () => timelineControls.update())
+
+  ipc.on('playpause', () => {
+    if (timelineControls.paused) timelineControls.play()
+    else timelineControls.pause()
+  })
+  ipc.on('runstop', () => {
+    if (timelineControls.running) timelineControls.stop()
+    else timelineControls.run()
+  })
+  ipc.on('prevstop', () => {
+    timelineControls.nextMarker(-Infinity, (marker, current, currentTime) => {
+      return marker[0] > current && marker[0] < currentTime
+    })
+  })
+  ipc.on('nextstop', () => {
+    timelineControls.nextMarker(Infinity, (marker, current, currentTime) => {
+      return marker[0] < current && marker[0] > currentTime
+    })
+  })
+
+  let hideTimeout = -1
   window.addEventListener('mousemove', e => {
+    clearTimeout(hideTimeout)
     if (e.pageY > window.innerHeight - 56) {
-      timeline.bar.hidden = false
-      clearTimeout(timeout)
+      timelineControls.hidden = false
     } else {
-      clearTimeout(timeout)
-      timeout = setTimeout(() => {
-        timeline.bar.hidden = true
+      hideTimeout = setTimeout(() => {
+        timelineControls.hidden = true
       }, 2000)
     }
   })
-}
 
-let mainCanvas = new MainCanvas()
-document.body.appendChild(mainCanvas)
+  let mainCanvas = new MainCanvas()
+  document.body.appendChild(mainCanvas)
+  let mainMenu = new MainMenu(mainCanvas.proxy)
+  window.mainMenu = mainMenu
 
-let mainMenu = new MainMenu(mainCanvas.proxy)
+  {
+    let canDrop = true
 
-{
-  let canDrop = true
-  document.body.addEventListener('dragover', e => {
-    e.preventDefault()
-    if (mainMenu !== null && canDrop) {
-      mainMenu.dropZone.dropState.defaultValue = 1
-
-      let files = e.dataTransfer.files
-      if (files.length > 1) {
-        mainMenu.dropZone.tooManyFiles.defaultValue = 1
-      } else {
-        mainMenu.dropZone.tooManyFiles.defaultValue = 0
-
-        let file = files[0]
-        let filePath = path.parse(file.path)
-        if (filePath.ext && filePath.ext !== '.js') {
-          mainMenu.dropZone.wrongType.defaultValue = 1
-        } else mainMenu.dropZone.wrongType.defaultValue = 0
-      }
-    }
-  })
-  let stopDrag = function (e) {
-    e.preventDefault()
-    if (mainMenu !== null) {
-      mainMenu.dropZone.dropState.defaultValue = 0
-      mainMenu.dropZone.tooManyFiles.defaultValue = 0
-      mainMenu.dropZone.wrongType.defaultValue = 0
-    }
-  }
-
-  let openSB = function (name, indexPath, dontAsk = false) {
-    title.setTitle(name)
-    let exp = loader.load(name, indexPath, dontAsk)
-    if (typeof exp.Main !== 'function') {
-      dialog.showMessageBox({
-        message: 'No Main Class',
-        buttons: ['OK'],
-        cancelId: 0,
-        defaultId: 0
-      })
-      window.location.reload()
-      return
-    }
-    let instance = new (exp.Main)(mainCanvas.proxy)
-    if (exp.timeline) {
-      timeline.bar.disabled = false
-      timeline.bar.hidden = false
-      timeline.bar.timeline = instance
-    }
-    if (exp.title) title.setTitle(exp.title)
-    if (exp.autorun) instance.run()
-    if (exp.autoplay) instance.play()
-
-    // terrible hack
-    ipcRenderer.once('reload', e => {
-      window.localStorage.__load = JSON.stringify([name, indexPath, dontAsk])
-      window.location.reload()
-    })
-  }
-
-  if (window.localStorage.__load) {
-    mainMenu.timeline.stop()
-    mainMenu = null
-    openSB(...JSON.parse(window.localStorage.__load))
-    delete window.localStorage.__load
-  }
-
-  let optIsDown = false
-  window.addEventListener('keydown', e => {
-    if (e.which === 18) optIsDown = true
-  })
-  window.addEventListener('keyup', e => {
-    if (e.which === 18) optIsDown = false
-  })
-
-  document.body.addEventListener('dragleave', stopDrag)
-  document.body.addEventListener('dragend', stopDrag)
-  document.body.addEventListener('drop', e => {
-    e.preventDefault()
-    if (mainMenu !== null && canDrop) {
-      mainMenu.dropZone.tooManyFiles.defaultValue = 0
-      mainMenu.dropZone.wrongType.defaultValue = 0
-
-      let files = e.dataTransfer.files
-      let firstExt = path.parse(files[0].path).ext
-      if (files.length > 1 || (firstExt && firstExt !== '.js')) {
+    let stopDrag = function (e) {
+      if (mainMenu !== null) {
+        e.preventDefault()
         mainMenu.dropZone.dropState.defaultValue = 0
-        return
+        mainMenu.dropZone.tooManyFiles.defaultValue = 0
+        mainMenu.dropZone.wrongType.defaultValue = 0
       }
-      canDrop = false
-      mainMenu.dropZone.dropState.defaultValue = 2
-      setTimeout(() => {
-        // move this somewhere else
-        let filePath = files[0].path
-        let indexPath
-        try {
-          indexPath = loader.resolve.sync(files[0].path, { basedir: filePath.dir })
-        } catch (err) {
-          dialog.showMessageBox({
-            message: 'Error',
-            detail: 'Could not resolve main file path',
-            buttons: ['OK'],
-            cancelId: 0,
-            defaultId: 0
-          })
-          canDrop = true
-          mainMenu.dropZone.dropState.defaultValue = 0
-          return
-        }
-
-        if (path.parse(indexPath).ext !== '.js') {
-          dialog.showMessageBox({
-            message: 'Invalid',
-            detail: `${path.parse(indexPath).base} is not a valid file`,
-            buttons: ['OK'],
-            cancelId: 0,
-            defaultId: 0
-          })
-          canDrop = true
-          mainMenu.dropZone.dropState.defaultValue = 0
-          return
-        }
-
-        mainMenu.timeline.duration = 4
-        mainMenu.timeline.play()
-        mainMenu.timeline.once('end', () => {
-          mainMenu.timeline.stop()
-          mainMenu = null
-          openSB(filePath.name, indexPath, optIsDown)
-        })
-      }, 100)
     }
-  })
+
+    let run = function (file) {
+      let name = path.parse(file.path).base
+      try {
+        let main = require(file.path)
+        let instance = new main.Main(mainCanvas.proxy)
+        titleBar.title = main.title
+        if (main.timeline) {
+          timelineControls.timeline = instance
+          timelineControls.disabled = false
+        }
+        window.instance = instance // for console access
+      } catch (err) {
+        console.error(err)
+        dialog.showMessageBox({
+          type: 'error',
+          buttons: ['Close', 'Continue'],
+          defaultId: 0,
+          title: 'Error',
+          message: `Failed to run ${name}`,
+          detail: err.toString(),
+          cancelId: 1
+        }, response => {
+          if (response === 0) {
+            window.location.reload()
+          }
+        })
+      }
+      ipc.once('reload', e => {
+        window.localStorage.__load = JSON.stringify({ path: file.path })
+        window.location.reload()
+      })
+    }
+
+    window.addEventListener('dragover', e => {
+      if (mainMenu !== null && canDrop) {
+        e.preventDefault()
+        mainMenu.dropZone.dropState.defaultValue = 1
+
+        let files = e.dataTransfer.files
+        mainMenu.dropZone.tooManyFiles.defaultValue = files.length > 1
+        if (files.length === 1) {
+          let file = files[0]
+          let filePath = path.parse(file.path)
+          mainMenu.dropZone.wrongType.defaultValue = filePath.ext &&
+            filePath.ext !== '.js'
+        }
+      }
+    })
+    window.addEventListener('dragleave', stopDrag)
+    window.addEventListener('dragend', stopDrag)
+    window.addEventListener('drop', e => {
+      if (mainMenu !== null && canDrop) {
+        e.preventDefault()
+        stopDrag(e)
+        let file = e.dataTransfer.files[0]
+        canDrop = false
+        mainMenu.dropZone.dropState.defaultValue = 2
+        setTimeout(() => {
+          mainMenu.timeline.duration = 4
+          mainMenu.timeline.play()
+          mainMenu.timeline.once('end', () => {
+            mainMenu.timeline.stop()
+            mainMenu = null
+            run(file)
+          })
+        }, 100)
+      }
+    })
+
+    if (window.localStorage.__load) {
+      mainMenu.timeline.stop()
+      mainMenu = null
+      canDrop = false
+      run(JSON.parse(window.localStorage.__load))
+      delete window.localStorage.__load
+    }
+  }
 }

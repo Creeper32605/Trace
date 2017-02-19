@@ -1,4 +1,4 @@
-const Trace = require('../../trace-api')
+const Trace = require('trace-api')
 
 class ToggleButton extends Trace.Object {
   constructor () {
@@ -345,6 +345,42 @@ class TimelineControls extends window.HTMLElement {
 
     this.drawTimeline.run()
     this.drawTimeline.play()
+  }
+
+  get paused () {
+    return this.timeline.paused
+  }
+  set paused (v) {
+    this.timeline.paused = v
+  }
+  get running () {
+    return this.timeline.running
+  }
+  set running (v) {
+    this.timeline.running = v
+  }
+  play () {
+    this.timeline.play()
+  }
+  pause () {
+    this.timeline.pause()
+  }
+  run () {
+    this.timeline.run()
+  }
+  stop () {
+    this.timeline.stop()
+  }
+  nextMarker (first, cond) {
+    let current = first
+    for (const marker of this.timeline.markers.entries()) {
+      if (cond(marker, current, this.timeline.currentTime)) {
+        current = marker[0]
+      }
+    }
+    if (Number.isFinite(current)) {
+      this.timeline.currentTime = current
+    }
   }
 }
 window.customElements.define('trace-timeline', TimelineControls)

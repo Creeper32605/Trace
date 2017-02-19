@@ -36,6 +36,14 @@ class MainCanvas extends window.HTMLElement {
   connectedCallback () {
     this.updateSize()
   }
+
+  get disabled () {
+    return this.classList.contains('disabled')
+  }
+  set disabled (v) {
+    if (v) this.classList.add('disabled')
+    else this.classList.remove('disabled')
+  }
 }
 window.customElements.define('trace-main-canvas', MainCanvas)
 module.exports = MainCanvas

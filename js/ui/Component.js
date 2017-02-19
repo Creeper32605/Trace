@@ -1,4 +1,4 @@
-const Trace = require('../../trace-api')
+const Trace = require('trace-api')
 
 class UIComponent extends window.HTMLElement {
   constructor () {

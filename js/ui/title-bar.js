@@ -1,5 +1,5 @@
 const {ipcRenderer} = require('electron')
-const Trace = require('../../trace-api')
+const Trace = require('trace-api')
 const UIComponent = require('./Component')
 
 class TitleObject extends Trace.Object {
@@ -255,6 +255,7 @@ class TitleBar extends UIComponent {
   }
   set title (v) {
     this.titleText.text = v
+    this.dispatchEvent(new window.Event('titleupdate'))
   }
 }
 window.customElements.define('trace-title-bar', TitleBar)
