@@ -1,6 +1,6 @@
 const {ipcRenderer} = require('electron')
 const Trace = require('trace-api')
-const UIComponent = require('./Component')
+const UIComponent = require('./component')
 
 class TitleObject extends Trace.Object {
   constructor () {
