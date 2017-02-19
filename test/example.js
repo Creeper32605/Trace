@@ -1,36 +1,49 @@
-// this works because this is in the repo
+// this works because this is in the same repo
 const Trace = require('trace-api')
 
+// will draw an arc or a series of lines between two radii
 class Burst extends Trace.Object {
   constructor () {
     super()
 
+    // inner radius
     this.inner = new Trace.AnimatedNumber(0)
+    // outer radius
     this.outer = new Trace.AnimatedNumber(0)
+    // number of lines
     this.lines = new Trace.AnimatedNumber(5)
+    // amount of offset before the first line
     this.angleOffset = new Trace.AnimatedNumber(0)
+    // fill color for arc
     this.fill = new Trace.AnimatedString('#fff')
+    // stroke color for lines
     this.stroke = new Trace.AnimatedString('')
+    // line width
     this.lineWidth = new Trace.AnimatedNumber(2)
+    // line cap style
     this.lineCap = new Trace.AnimatedString('round')
+    // glow amount
     this.blur = new Trace.AnimatedNumber(0)
   }
   drawSelf (ctx, transform, currentTime, deltaTime) {
-    Trace.Utils.resetCtx(ctx)
+    // apply transform
     Trace.Utils.setTransformMatrix(ctx, transform)
 
+    // apply opacity
     ctx.globalAlpha = this.opacity.getValue(currentTime, deltaTime)
 
-    let inner = this.inner.getValue(currentTime, deltaTime)
-    let outer = this.outer.getValue(currentTime, deltaTime)
-    let lines = this.lines.getValue(currentTime, deltaTime)
-    let angleOffset = this.angleOffset.getValue(currentTime, deltaTime)
-    let fill = this.fill.getValue(currentTime, deltaTime)
-    let stroke = this.stroke.getValue(currentTime, deltaTime)
-    let lineWidth = this.lineWidth.getValue(currentTime, deltaTime)
-    let lineCap = this.lineCap.getValue(currentTime, deltaTime)
-    let blur = this.blur.getValue(currentTime, deltaTime)
+    // get values for current time
+    const inner = this.inner.getValue(currentTime, deltaTime)
+    const outer = this.outer.getValue(currentTime, deltaTime)
+    const lines = this.lines.getValue(currentTime, deltaTime)
+    const angleOffset = this.angleOffset.getValue(currentTime, deltaTime)
+    const fill = this.fill.getValue(currentTime, deltaTime)
+    const stroke = this.stroke.getValue(currentTime, deltaTime)
+    const lineWidth = this.lineWidth.getValue(currentTime, deltaTime)
+    const lineCap = this.lineCap.getValue(currentTime, deltaTime)
+    const blur = this.blur.getValue(currentTime, deltaTime)
 
+    // angle between lines
     let angle = (Math.PI * 2) / lines
 
     ctx.fillStyle = fill
@@ -44,12 +57,14 @@ class Burst extends Trace.Object {
     }
 
     if (fill) {
+      // draw arc
       ctx.beginPath()
       ctx.arc(0, 0, outer, 0, Math.PI * 2)
       ctx.arc(0, 0, inner, 0, Math.PI * 2, true)
       ctx.fill()
     }
     if (stroke && outer - inner !== 0) {
+      // draw lines
       ctx.beginPath()
       for (let i = 0; i < lines; i++) {
         let cos = Math.cos(i * angle + angleOffset)
@@ -62,19 +77,26 @@ class Burst extends Trace.Object {
   }
 }
 
+// will draw a selection box with a rectangle and eight boxes
 class SelectionBox extends Trace.Object {
   constructor () {
     super()
 
+    // box width
     this.width = new Trace.AnimatedNumber(0)
+    // box height
     this.height = new Trace.AnimatedNumber(0)
+    // box offset
     this.offsetX = new Trace.AnimatedNumber(0)
     this.offsetY = new Trace.AnimatedNumber(0)
+    // box color
     this.color = new Trace.AnimatedColor('#2980da')
   }
   drawSelf (ctx, transform, currentTime, deltaTime) {
+    // apply transform
     Trace.Utils.setTransformMatrix(ctx, transform)
 
+    // get values at current time
     const width = this.width.getValue(currentTime, deltaTime)
     const height = this.height.getValue(currentTime, deltaTime)
     const color = this.color.getValue(currentTime, deltaTime)
@@ -85,7 +107,7 @@ class SelectionBox extends Trace.Object {
     ctx.globalAlpha = opacity
     ctx.translate(offsetX, offsetY)
 
-    // draw box
+    // draw outline box
     ctx.strokeStyle = color
     ctx.lineWidth = 2
     ctx.lineCap = 'round'
@@ -106,10 +128,12 @@ class SelectionBox extends Trace.Object {
   }
 }
 
+// main class
 class Main extends Trace.Timeline {
   constructor (canvas) {
     super()
 
+    // set up canvas
     this.ctx = canvas.ctx
     let viewport = new Trace.Viewport()
     this.addChild(viewport)

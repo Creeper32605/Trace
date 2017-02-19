@@ -3,7 +3,7 @@
   "private": true,
   "productName": "Trace",
   "version": "0.5.0",
-  "description": "Canvas Animation Engine",
+  "description": "Trace Animation Player",
   "main": "main.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
@@ -19,12 +19,6 @@
   },
   "homepage": "https://github.com/cpsdqs/Trace#readme",
   "dependencies": {
-    "bezier-easing": "^2.0.3",
-    "css-color-converter": "^1.1.0",
-    "gl-matrix": "^2.3.2",
-    "resolve": "^1.1.7",
-    "stable": "^0.1.5",
-    "svg-parser": "^1.0.5",
     "trace-api": "^0.1.1"
   },
   "devDependencies": {
